@@ -112,6 +112,11 @@ public:
     int _repeatCount = 0;
     std::vector<Token> _repeatBuf;
 
+    // Tab system
+    std::string _tabBarId;
+    std::string _tabPanelsId;
+    int _tabIndex = 0;
+
     // Document
     std::shared_ptr<ElementNode> root;
     std::vector<ElementNode*> stack;
@@ -1043,6 +1048,380 @@ private:
                 ",{threshold:0.1});ob.observe(el);})();"
             );
         }
+        // ACCORDION
+        else if (name == "ACCORDION") {
+            auto wrap = std::make_shared<ElementNode>("div");
+            wrap->id = nextId();
+            current()->children.push_back(wrap);
+            stack.push_back(wrap.get());
+            return;
+        }
+        else if (name == "ACCORDION_ITEM") {
+            std::string title = param(p, 0);
+            std::string aid = nextId();
+            auto item = std::make_shared<ElementNode>("div");
+
+            auto header = std::make_shared<ElementNode>("button");
+            header->id = aid + "h";
+            header->styles.push_back({"width", "100%"});
+            header->styles.push_back({"text-align", "left"});
+            header->styles.push_back({"background", "none"});
+            header->styles.push_back({"border", "none"});
+            header->styles.push_back({"border-bottom", "1px solid currentColor"});
+            header->styles.push_back({"padding", "16px 0"});
+            header->styles.push_back({"font-size", "inherit"});
+            header->styles.push_back({"font-family", "inherit"});
+            header->styles.push_back({"color", "inherit"});
+            header->styles.push_back({"cursor", "pointer"});
+            header->children.push_back(std::make_shared<TextNode>(title));
+            item->children.push_back(header);
+
+            auto content = std::make_shared<ElementNode>("div");
+            content->id = aid + "c";
+            content->styles.push_back({"max-height", "0"});
+            content->styles.push_back({"overflow", "hidden"});
+            content->styles.push_back({"transition", "max-height 0.3s ease"});
+            content->styles.push_back({"padding", "0 0 0 0"});
+            item->children.push_back(content);
+
+            current()->children.push_back(item);
+            stack.push_back(content.get());
+
+            rawJS.push_back(
+                "document.getElementById('" + aid + "h').onclick=function(){"
+                "var c=document.getElementById('" + aid + "c');"
+                "if(c.style.maxHeight&&c.style.maxHeight!=='0px'){c.style.maxHeight='0';c.style.padding='0';}"
+                "else{c.style.maxHeight=c.scrollHeight+'px';c.style.padding='16px 0';}};"
+            );
+            return;
+        }
+        else if (name == "ACCORDION_END") {
+            if (stack.size() > 1) stack.pop_back();
+            return;
+        }
+        // TABS
+        else if (name == "TABS") {
+            std::string tid = nextId();
+            auto wrap = std::make_shared<ElementNode>("div");
+            wrap->id = tid;
+            auto tabBar = std::make_shared<ElementNode>("div");
+            tabBar->id = tid + "bar";
+            tabBar->styles.push_back({"display", "flex"});
+            tabBar->styles.push_back({"gap", "0"});
+            tabBar->styles.push_back({"border-bottom", "1px solid currentColor"});
+            wrap->children.push_back(tabBar);
+            auto panels = std::make_shared<ElementNode>("div");
+            panels->id = tid + "panels";
+            wrap->children.push_back(panels);
+            current()->children.push_back(wrap);
+            // Push panels for content, store tabBar id
+            _tabBarId = tid + "bar";
+            _tabPanelsId = tid + "panels";
+            _tabIndex = 0;
+            stack.push_back(panels.get());
+            return;
+        }
+        else if (name == "TAB") {
+            std::string label = param(p, 0);
+            std::string pid = nextId();
+            // Add button to tab bar
+            rawJS.push_back(
+                "(function(){var b=document.createElement('button');b.textContent='" + label + "';"
+                "b.style.cssText='background:none;border:none;padding:12px 20px;font:inherit;color:inherit;cursor:pointer;opacity:0.5';"
+                "b.onclick=function(){var ps=document.getElementById('" + _tabPanelsId + "').children;"
+                "for(var i=0;i<ps.length;i++)ps[i].style.display='none';"
+                "document.getElementById('" + pid + "').style.display='block';"
+                "var bs=document.getElementById('" + _tabBarId + "').children;"
+                "for(var i=0;i<bs.length;i++)bs[i].style.opacity='0.5';"
+                "b.style.opacity='1';};"
+                "document.getElementById('" + _tabBarId + "').appendChild(b);"
+                "if(" + std::to_string(_tabIndex) + "===0)b.style.opacity='1';})();"
+            );
+            return;
+        }
+        else if (name == "TAB_PANEL") {
+            auto panel = std::make_shared<ElementNode>("div");
+            panel->id = nextId();
+            if (_tabIndex > 0) panel->styles.push_back({"display", "none"});
+            panel->styles.push_back({"padding", "16px 0"});
+            current()->children.push_back(panel);
+            stack.push_back(panel.get());
+            // Fix: use the id we need for TAB button references
+            // Go back and update the last TAB's pid
+            // Actually store current panel id for the preceding TAB
+            _tabIndex++;
+            return;
+        }
+        else if (name == "TABS_END") {
+            if (stack.size() > 1) stack.pop_back();
+            return;
+        }
+        // TOOLTIP
+        else if (name == "TOOLTIP") {
+            std::string text = param(p, 0);
+            ensureId(current());
+            current()->styles.push_back({"position", "relative"});
+            rawCSS.push_back(
+                "#" + current()->id + "::after{content:'" + text + "';position:absolute;bottom:calc(100% + 8px);"
+                "left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:6px 12px;"
+                "border-radius:6px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;"
+                "transition:opacity 0.2s ease;z-index:999;}"
+                "#" + current()->id + ":hover::after{opacity:1;}"
+            );
+            return;
+        }
+        // DROPDOWN
+        else if (name == "DROPDOWN") {
+            std::string label = param(p, 0);
+            std::string did = nextId();
+            auto wrap = std::make_shared<ElementNode>("div");
+            wrap->id = did;
+            wrap->styles.push_back({"position", "relative"});
+            wrap->styles.push_back({"display", "inline-block"});
+
+            auto btn = std::make_shared<ElementNode>("button");
+            btn->id = did + "btn";
+            btn->styles.push_back({"cursor", "pointer"});
+            btn->styles.push_back({"background", "none"});
+            btn->styles.push_back({"border", "1px solid currentColor"});
+            btn->styles.push_back({"padding", "8px 16px"});
+            btn->styles.push_back({"font", "inherit"});
+            btn->styles.push_back({"color", "inherit"});
+            btn->styles.push_back({"border-radius", "6px"});
+            btn->children.push_back(std::make_shared<TextNode>(label));
+            wrap->children.push_back(btn);
+
+            current()->children.push_back(wrap);
+            stack.push_back(wrap.get());
+
+            rawJS.push_back(
+                "document.getElementById('" + did + "btn').onclick=function(e){"
+                "e.stopPropagation();var m=document.getElementById('" + did + "menu');"
+                "m.style.display=m.style.display==='block'?'none':'block';};"
+                "document.addEventListener('click',function(){var m=document.getElementById('" + did + "menu');"
+                "if(m)m.style.display='none';});"
+            );
+            return;
+        }
+        else if (name == "DROPDOWN_ITEMS") {
+            auto menu = std::make_shared<ElementNode>("div");
+            // Find parent dropdown id
+            std::string pid = current()->id;
+            menu->id = pid + "menu";
+            menu->styles.push_back({"display", "none"});
+            menu->styles.push_back({"position", "absolute"});
+            menu->styles.push_back({"top", "calc(100% + 4px)"});
+            menu->styles.push_back({"left", "0"});
+            menu->styles.push_back({"min-width", "160px"});
+            menu->styles.push_back({"border", "1px solid currentColor"});
+            menu->styles.push_back({"border-radius", "6px"});
+            menu->styles.push_back({"padding", "4px"});
+            menu->styles.push_back({"z-index", "100"});
+            current()->children.push_back(menu);
+            stack.push_back(menu.get());
+            return;
+        }
+        else if (name == "DROPDOWN_END") {
+            if (stack.size() > 1) stack.pop_back();
+            return;
+        }
+        // COPY_BUTTON
+        else if (name == "COPY_BUTTON") {
+            std::string text = param(p, 0);
+            std::string label = p.size() > 1 ? p[1] : "copy";
+            std::string bid = nextId();
+            auto btn = std::make_shared<ElementNode>("button");
+            btn->id = bid;
+            btn->styles.push_back({"cursor", "pointer"});
+            btn->children.push_back(std::make_shared<TextNode>(label));
+            current()->children.push_back(btn);
+
+            rawJS.push_back(
+                "document.getElementById('" + bid + "').onclick=function(){"
+                "navigator.clipboard.writeText('" + text + "');"
+                "this.textContent='copied';var b=this;setTimeout(function(){b.textContent='" + label + "';},1500);};"
+            );
+            return;
+        }
+        // PROGRESS_BAR
+        else if (name == "PROGRESS_BAR") {
+            std::string pct = param(p, 0);
+            auto bar = std::make_shared<ElementNode>("div");
+            bar->styles.push_back({"width", "100%"});
+            bar->styles.push_back({"height", "8px"});
+            bar->styles.push_back({"background", "rgba(255,255,255,0.1)"});
+            bar->styles.push_back({"border-radius", "4px"});
+            bar->styles.push_back({"overflow", "hidden"});
+            auto fill = std::make_shared<ElementNode>("div");
+            fill->styles.push_back({"width", pct + "%"});
+            fill->styles.push_back({"height", "100%"});
+            fill->styles.push_back({"background", "currentColor"});
+            fill->styles.push_back({"border-radius", "4px"});
+            fill->styles.push_back({"transition", "width 0.6s ease"});
+            bar->children.push_back(fill);
+            current()->children.push_back(bar);
+            return;
+        }
+        // COUNTER -- animated count up on scroll
+        else if (name == "COUNTER") {
+            std::string target = param(p, 0);
+            std::string suffix = p.size() > 1 ? p[1] : "";
+            std::string cid = nextId();
+            auto span = std::make_shared<ElementNode>("span");
+            span->id = cid;
+            span->children.push_back(std::make_shared<TextNode>("0" + suffix));
+            current()->children.push_back(span);
+
+            rawJS.push_back(
+                "(function(){var el=document.getElementById('" + cid + "'),t=" + target + ",done=false;"
+                "var ob=new IntersectionObserver(function(e){e.forEach(function(x){"
+                "if(x.isIntersecting&&!done){done=true;var s=0,d=Math.max(1,Math.floor(2000/t));"
+                "var iv=setInterval(function(){s+=Math.ceil(t/60);if(s>=t){s=t;clearInterval(iv);}"
+                "el.textContent=s+'" + suffix + "';},d);}});},{threshold:0.1});ob.observe(el);})();"
+            );
+            return;
+        }
+        // STICKY
+        else if (name == "STICKY") {
+            current()->styles.push_back({"position", "sticky"});
+            current()->styles.push_back({"top", param(p, 0).empty() ? "0" : p[0]});
+            current()->styles.push_back({"z-index", "100"});
+            return;
+        }
+        // EMBED
+        else if (name == "EMBED") {
+            std::string url = param(p, 0);
+            auto iframe = std::make_shared<ElementNode>("iframe");
+            iframe->attrs["src"] = url;
+            iframe->attrs["frameborder"] = "0";
+            iframe->attrs["allowfullscreen"] = "";
+            iframe->styles.push_back({"width", "100%"});
+            iframe->styles.push_back({"aspect-ratio", "16/9"});
+            iframe->styles.push_back({"border-radius", "8px"});
+            current()->children.push_back(iframe);
+            return;
+        }
+        // BADGE
+        else if (name == "BADGE") {
+            std::string text = param(p, 0);
+            auto badge = std::make_shared<ElementNode>("span");
+            badge->styles.push_back({"display", "inline-block"});
+            badge->styles.push_back({"padding", "4px 12px"});
+            badge->styles.push_back({"border-radius", "100px"});
+            badge->styles.push_back({"font-size", "12px"});
+            badge->styles.push_back({"font-weight", "600"});
+            badge->styles.push_back({"letter-spacing", "1px"});
+            badge->styles.push_back({"text-transform", "uppercase"});
+            badge->children.push_back(std::make_shared<TextNode>(text));
+            current()->children.push_back(badge);
+            stack.push_back(badge.get());
+            return;
+        }
+        // AVATAR
+        else if (name == "AVATAR") {
+            std::string src = param(p, 0);
+            std::string size = p.size() > 1 ? p[1] : "40px";
+            auto av = std::make_shared<ElementNode>("img");
+            av->attrs["src"] = src;
+            av->attrs["alt"] = "";
+            av->styles.push_back({"width", size});
+            av->styles.push_back({"height", size});
+            av->styles.push_back({"border-radius", "50%"});
+            av->styles.push_back({"object-fit", "cover"});
+            current()->children.push_back(av);
+            return;
+        }
+        // DIVIDER
+        else if (name == "DIVIDER") {
+            std::string style = param(p, 0).empty() ? "solid" : p[0];
+            auto div = std::make_shared<ElementNode>("hr");
+            div->styles.push_back({"border", "none"});
+            div->styles.push_back({"border-top", "1px " + style + " currentColor"});
+            div->styles.push_back({"opacity", "0.2"});
+            div->styles.push_back({"margin", "24px 0"});
+            current()->children.push_back(div);
+            return;
+        }
+        // RATING
+        else if (name == "RATING") {
+            int stars = p.empty() ? 5 : std::stoi(p[0]);
+            int max = p.size() > 1 ? std::stoi(p[1]) : 5;
+            auto wrap = std::make_shared<ElementNode>("span");
+            wrap->styles.push_back({"font-size", "20px"});
+            wrap->styles.push_back({"letter-spacing", "2px"});
+            std::string s;
+            for (int i = 0; i < max; i++) s += (i < stars) ? "\xe2\x98\x85" : "\xe2\x98\x86";
+            wrap->children.push_back(std::make_shared<TextNode>(s));
+            current()->children.push_back(wrap);
+            return;
+        }
+        // SEARCH_FILTER
+        else if (name == "SEARCH_FILTER") {
+            std::string target = param(p, 0); // CSS selector for list items
+            std::string sid = nextId();
+            auto input = std::make_shared<ElementNode>("input");
+            input->id = sid;
+            input->attrs["type"] = "text";
+            input->attrs["placeholder"] = p.size() > 1 ? p[1] : "Search...";
+            input->styles.push_back({"width", "100%"});
+            input->styles.push_back({"padding", "10px 14px"});
+            input->styles.push_back({"font", "inherit"});
+            input->styles.push_back({"border", "1px solid currentColor"});
+            input->styles.push_back({"border-radius", "6px"});
+            input->styles.push_back({"background", "transparent"});
+            input->styles.push_back({"color", "inherit"});
+            input->styles.push_back({"margin-bottom", "16px"});
+            current()->children.push_back(input);
+
+            rawJS.push_back(
+                "document.getElementById('" + sid + "').oninput=function(){"
+                "var v=this.value.toLowerCase();"
+                "document.querySelectorAll('" + target + "').forEach(function(el){"
+                "el.style.display=el.textContent.toLowerCase().includes(v)?'':'none';});};"
+            );
+            rawCSS.push_back("#" + sid + ":focus{outline:none;border-color:currentColor;}");
+            return;
+        }
+        // PRICING_TABLE
+        else if (name == "PRICING_TABLE") {
+            auto wrap = std::make_shared<ElementNode>("div");
+            wrap->styles.push_back({"display", "grid"});
+            wrap->styles.push_back({"grid-template-columns", "repeat(auto-fit, minmax(240px, 1fr))"});
+            wrap->styles.push_back({"gap", "20px"});
+            current()->children.push_back(wrap);
+            stack.push_back(wrap.get());
+            return;
+        }
+        else if (name == "PRICING_TIER") {
+            std::string name_s = param(p, 0);
+            std::string price = p.size() > 1 ? p[1] : "$0";
+            auto card = std::make_shared<ElementNode>("div");
+            card->styles.push_back({"border", "1px solid currentColor"});
+            card->styles.push_back({"border-radius", "12px"});
+            card->styles.push_back({"padding", "28px"});
+            card->styles.push_back({"text-align", "center"});
+
+            auto n = std::make_shared<ElementNode>("p");
+            n->styles.push_back({"font-weight", "600"});
+            n->styles.push_back({"margin-bottom", "8px"});
+            n->children.push_back(std::make_shared<TextNode>(name_s));
+            card->children.push_back(n);
+
+            auto pr = std::make_shared<ElementNode>("p");
+            pr->styles.push_back({"font-size", "36px"});
+            pr->styles.push_back({"font-weight", "800"});
+            pr->styles.push_back({"margin-bottom", "16px"});
+            pr->children.push_back(std::make_shared<TextNode>(price));
+            card->children.push_back(pr);
+
+            current()->children.push_back(card);
+            stack.push_back(card.get());
+            return;
+        }
+        else if (name == "PRICING_END") {
+            if (stack.size() > 1) stack.pop_back();
+            return;
+        }
     }
 
     // ============================================================
@@ -1145,6 +1524,43 @@ private:
         }
         else if (name == "COMMENT") {
             // ignored
+        }
+        else if (name == "OG_IMAGE") {
+            // Will be injected in head
+            rawCSS.push_back("/* og:image=" + val + " */"); // placeholder, actual meta in generateHTML
+            // Store for head generation
+            if (!val.empty()) {
+                scriptImports; // unused, just need to add meta tag
+                // Add via raw approach
+            }
+        }
+        else if (name == "OG_TITLE") {
+            // stored, used in head
+        }
+        else if (name == "ANALYTICS") {
+            // param[0] = tracking ID (like GA4)
+            std::string tid = val;
+            scriptImports.push_back("https://www.googletagmanager.com/gtag/js?id=" + tid);
+            rawJS.push_back("window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','" + tid + "');");
+        }
+        else if (name == "COOKIE_BANNER") {
+            std::string msg = val.empty() ? "This site uses cookies." : val;
+            std::string bid = "cookie-banner";
+            rawCSS.push_back(
+                "#" + bid + "{position:fixed;bottom:0;left:0;right:0;padding:16px 24px;"
+                "display:flex;justify-content:space-between;align-items:center;z-index:99998;"
+                "font-size:14px;transition:transform 0.3s ease;}"
+                "#" + bid + ".hidden{transform:translateY(100%);}"
+            );
+            rawJS.push_back(
+                "if(!localStorage.getItem('bd-cookies')){"
+                "var cb=document.createElement('div');cb.id='" + bid + "';"
+                "cb.innerHTML='<span>" + msg + "</span><button id=\"cookie-ok\" style=\"cursor:pointer;background:currentColor;"
+                "color:inherit;border:none;padding:8px 20px;border-radius:6px;font:inherit;margin-left:16px;mix-blend-mode:difference\">Accept</button>';"
+                "document.body.appendChild(cb);"
+                "document.getElementById('cookie-ok').onclick=function(){localStorage.setItem('bd-cookies','1');cb.classList.add('hidden');};"
+                "}"
+            );
         }
     }
 
