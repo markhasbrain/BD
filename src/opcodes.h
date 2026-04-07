@@ -78,6 +78,9 @@ inline const std::unordered_map<std::string, std::string>& allOpcodes() {
         {"00101101", "SELECT_END"},
         {"00101110", "OPTION"},
         {"00101111", "LABEL"},
+        {"00110000", "COMPONENT_DEF"},
+        {"00110001", "COMPONENT_END"},
+        {"00110010", "COMPONENT_USE"},
 
         // ===== STYLE (01) =====
         {"01000001", "BG"},

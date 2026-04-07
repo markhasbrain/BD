@@ -101,6 +101,12 @@ public:
     std::vector<std::string> rawCSS;
     std::vector<std::string> rawJS;
 
+    // Component system: define once, use anywhere
+    std::unordered_map<std::string, std::vector<Token>> componentDefs;
+    std::string _currentComponentName;
+    std::vector<Token> _currentComponentTokens;
+    bool _definingComponent = false;
+
     // Document
     std::shared_ptr<ElementNode> root;
     std::vector<ElementNode*> stack;
@@ -157,6 +163,10 @@ public:
         _kfStepName.clear(); _kfStepBuf.clear();
         _kfStepActive = false;
         _mediaSel.clear(); _mediaRules.clear();
+        componentDefs.clear();
+        _currentComponentName.clear();
+        _currentComponentTokens.clear();
+        _definingComponent = false;
     }
 
     ElementNode* current() {
@@ -233,6 +243,39 @@ private:
     void processToken(const Token& token) {
         std::string name = lookupOpcode(token.opcode);
         if (name.empty()) return;
+
+        // Component system
+        if (name == "COMPONENT_DEF") {
+            _definingComponent = true;
+            _currentComponentName = token.params.empty() ? "" : token.params[0];
+            _currentComponentTokens.clear();
+            return;
+        }
+        if (name == "COMPONENT_END") {
+            if (_definingComponent && !_currentComponentName.empty()) {
+                componentDefs[_currentComponentName] = _currentComponentTokens;
+            }
+            _definingComponent = false;
+            _currentComponentName.clear();
+            _currentComponentTokens.clear();
+            return;
+        }
+        if (name == "COMPONENT_USE") {
+            std::string cname = token.params.empty() ? "" : token.params[0];
+            auto it = componentDefs.find(cname);
+            if (it != componentDefs.end()) {
+                for (auto& t : it->second) {
+                    processToken(t);
+                }
+            }
+            return;
+        }
+
+        // If defining a component, buffer tokens instead of executing
+        if (_definingComponent) {
+            _currentComponentTokens.push_back(token);
+            return;
+        }
 
         Category cat = getCategory(token.opcode);
         const auto& p = token.params;
