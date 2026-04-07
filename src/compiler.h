@@ -107,6 +107,11 @@ public:
     std::vector<Token> _currentComponentTokens;
     bool _definingComponent = false;
 
+    // Repeat system
+    bool _repeating = false;
+    int _repeatCount = 0;
+    std::vector<Token> _repeatBuf;
+
     // Document
     std::shared_ptr<ElementNode> root;
     std::vector<ElementNode*> stack;
@@ -167,6 +172,9 @@ public:
         _currentComponentName.clear();
         _currentComponentTokens.clear();
         _definingComponent = false;
+        _repeating = false;
+        _repeatCount = 0;
+        _repeatBuf.clear();
     }
 
     ElementNode* current() {
@@ -264,8 +272,13 @@ private:
             std::string cname = token.params.empty() ? "" : token.params[0];
             auto it = componentDefs.find(cname);
             if (it != componentDefs.end()) {
+                // Replay the component tokens
                 for (auto& t : it->second) {
                     processToken(t);
+                }
+                // If extra params, add them as content (slots)
+                for (size_t si = 1; si < token.params.size(); si++) {
+                    current()->children.push_back(std::make_shared<TextNode>(token.params[si]));
                 }
             }
             return;
@@ -274,6 +287,12 @@ private:
         // If defining a component, buffer tokens instead of executing
         if (_definingComponent) {
             _currentComponentTokens.push_back(token);
+            return;
+        }
+
+        // If inside a REPEAT block, buffer tokens
+        if (_repeating && name != "REPEAT_END") {
+            _repeatBuf.push_back(token);
             return;
         }
 
@@ -577,6 +596,295 @@ private:
             return;
         }
 
+        // IMPORT: pull in another .bd file
+        if (name == "IMPORT") {
+            if (!p.empty()) {
+                std::string importPath = p[0];
+                // Resolve relative to current file's directory
+                std::ifstream f(importPath);
+                if (f.is_open()) {
+                    std::string src((std::istreambuf_iterator<char>(f)),
+                                     std::istreambuf_iterator<char>());
+                    Lexer importLexer;
+                    importLexer.tokenize(src);
+                    for (auto& t : importLexer.tokens) {
+                        processToken(t);
+                    }
+                }
+            }
+            return;
+        }
+
+        // REPEAT: repeat next element N times
+        if (name == "REPEAT") {
+            // Handled by collecting tokens until REPEAT_END, then replaying N times
+            int count = p.empty() ? 1 : std::stoi(p[0]);
+            // Buffer tokens until REPEAT_END
+            // Store in a temp vector, then replay
+            _repeatCount = count;
+            _repeating = true;
+            _repeatBuf.clear();
+            return;
+        }
+        if (name == "REPEAT_END") {
+            if (_repeating) {
+                _repeating = false;
+                for (int i = 0; i < _repeatCount; i++) {
+                    for (auto& t : _repeatBuf) {
+                        processToken(t);
+                    }
+                }
+                _repeatBuf.clear();
+            }
+            return;
+        }
+
+        // IF_VISIBLE: show/hide element based on JS condition
+        if (name == "IF_VISIBLE") {
+            // param[0] = JS condition, applied as data-if attribute
+            // JS will evaluate and toggle display
+            auto node = std::make_shared<ElementNode>("div");
+            node->id = nextId();
+            node->styles.push_back({"display", "none"});
+            if (!p.empty()) {
+                rawJS.push_back("if(" + p[0] + ")document.getElementById('" + node->id + "').style.display='block';");
+            }
+            current()->children.push_back(node);
+            stack.push_back(node.get());
+            return;
+        }
+
+        // CAROUSEL: image/content slider
+        if (name == "CAROUSEL") {
+            std::string cid = "crs" + std::to_string(idCounter++);
+            auto wrapper = std::make_shared<ElementNode>("div");
+            wrapper->id = cid;
+            wrapper->styles.push_back({"position", "relative"});
+            wrapper->styles.push_back({"overflow", "hidden"});
+            wrapper->styles.push_back({"width", "100%"});
+
+            auto track = std::make_shared<ElementNode>("div");
+            track->id = cid + "-track";
+            track->styles.push_back({"display", "flex"});
+            track->styles.push_back({"transition", "transform 0.5s cubic-bezier(0.33, 1, 0.68, 1)"});
+
+            wrapper->children.push_back(track);
+
+            // Prev/Next buttons
+            auto prev = std::make_shared<ElementNode>("button");
+            prev->id = cid + "-prev";
+            prev->styles.push_back({"position", "absolute"});
+            prev->styles.push_back({"left", "8px"});
+            prev->styles.push_back({"top", "50%"});
+            prev->styles.push_back({"transform", "translateY(-50%)"});
+            prev->styles.push_back({"background", "rgba(0,0,0,0.5)"});
+            prev->styles.push_back({"color", "#fff"});
+            prev->styles.push_back({"border", "none"});
+            prev->styles.push_back({"padding", "8px 14px"});
+            prev->styles.push_back({"border-radius", "50%"});
+            prev->styles.push_back({"cursor", "pointer"});
+            prev->styles.push_back({"font-size", "18px"});
+            prev->styles.push_back({"z-index", "1"});
+            prev->children.push_back(std::make_shared<TextNode>("<"));
+            wrapper->children.push_back(prev);
+
+            auto next = std::make_shared<ElementNode>("button");
+            next->id = cid + "-next";
+            next->styles.push_back({"position", "absolute"});
+            next->styles.push_back({"right", "8px"});
+            next->styles.push_back({"top", "50%"});
+            next->styles.push_back({"transform", "translateY(-50%)"});
+            next->styles.push_back({"background", "rgba(0,0,0,0.5)"});
+            next->styles.push_back({"color", "#fff"});
+            next->styles.push_back({"border", "none"});
+            next->styles.push_back({"padding", "8px 14px"});
+            next->styles.push_back({"border-radius", "50%"});
+            next->styles.push_back({"cursor", "pointer"});
+            next->styles.push_back({"font-size", "18px"});
+            next->styles.push_back({"z-index", "1"});
+            next->children.push_back(std::make_shared<TextNode>(">"));
+            wrapper->children.push_back(next);
+
+            current()->children.push_back(wrapper);
+            stack.push_back(track.get()); // items go inside track
+
+            rawJS.push_back(
+                "(function(){var t=document.getElementById('" + cid + "-track'),"
+                "p=document.getElementById('" + cid + "-prev'),"
+                "n=document.getElementById('" + cid + "-next'),"
+                "i=0,c=t.children.length;"
+                "function go(x){i=Math.max(0,Math.min(c-1,x));t.style.transform='translateX(-'+i*100+'%)';}"
+                "p.onclick=function(){go(i-1);};"
+                "n.onclick=function(){go(i+1);};})();"
+            );
+            return;
+        }
+
+        if (name == "CAROUSEL_ITEM") {
+            auto item = std::make_shared<ElementNode>("div");
+            item->styles.push_back({"min-width", "100%"});
+            item->styles.push_back({"flex-shrink", "0"});
+            current()->children.push_back(item);
+            stack.push_back(item.get());
+            return;
+        }
+
+        if (name == "CAROUSEL_END") {
+            // Pop back out of track
+            if (stack.size() > 1) stack.pop_back();
+            return;
+        }
+
+        // MODAL_DEF: define a modal dialog
+        if (name == "MODAL_DEF") {
+            std::string mid = p.empty() ? "modal" : p[0];
+            auto overlay = std::make_shared<ElementNode>("div");
+            overlay->id = mid;
+            overlay->styles.push_back({"position", "fixed"});
+            overlay->styles.push_back({"top", "0"});
+            overlay->styles.push_back({"left", "0"});
+            overlay->styles.push_back({"width", "100%"});
+            overlay->styles.push_back({"height", "100%"});
+            overlay->styles.push_back({"background", "rgba(0,0,0,0.85)"});
+            overlay->styles.push_back({"backdrop-filter", "blur(4px)"});
+            overlay->styles.push_back({"z-index", "9999"});
+            overlay->styles.push_back({"display", "flex"});
+            overlay->styles.push_back({"justify-content", "center"});
+            overlay->styles.push_back({"align-items", "center"});
+            overlay->styles.push_back({"padding", "24px"});
+            overlay->styles.push_back({"opacity", "0"});
+            overlay->styles.push_back({"pointer-events", "none"});
+            overlay->styles.push_back({"transition", "opacity 0.2s ease"});
+
+            auto box = std::make_shared<ElementNode>("div");
+            box->id = mid + "-box";
+            box->styles.push_back({"max-width", "580px"});
+            box->styles.push_back({"width", "100%"});
+            box->styles.push_back({"padding", "40px"});
+            box->styles.push_back({"position", "relative"});
+            box->styles.push_back({"transform", "translateY(20px)"});
+            box->styles.push_back({"transition", "transform 0.2s ease"});
+
+            // Close button
+            auto closeBtn = std::make_shared<ElementNode>("button");
+            closeBtn->id = mid + "-close";
+            closeBtn->styles.push_back({"position", "absolute"});
+            closeBtn->styles.push_back({"top", "16px"});
+            closeBtn->styles.push_back({"right", "20px"});
+            closeBtn->styles.push_back({"background", "none"});
+            closeBtn->styles.push_back({"border", "none"});
+            closeBtn->styles.push_back({"font-size", "18px"});
+            closeBtn->styles.push_back({"cursor", "pointer"});
+            closeBtn->children.push_back(std::make_shared<TextNode>("x"));
+            box->children.push_back(closeBtn);
+
+            overlay->children.push_back(box);
+            current()->children.push_back(overlay);
+            stack.push_back(box.get()); // content goes in box
+
+            // JS for open/close
+            rawJS.push_back(
+                "document.getElementById('" + mid + "-close').onclick=function(){"
+                "document.getElementById('" + mid + "').style.opacity='0';"
+                "document.getElementById('" + mid + "').style.pointerEvents='none';"
+                "document.getElementById('" + mid + "-box').style.transform='translateY(20px)';};"
+                "document.getElementById('" + mid + "').onclick=function(e){"
+                "if(e.target===this){this.style.opacity='0';this.style.pointerEvents='none';"
+                "document.getElementById('" + mid + "-box').style.transform='translateY(20px)';}};"
+            );
+            return;
+        }
+
+        if (name == "MODAL_END") {
+            if (stack.size() > 1) stack.pop_back();
+            return;
+        }
+
+        // MODAL_OPEN: button that opens a modal
+        if (name == "MODAL_OPEN") {
+            std::string mid = p.empty() ? "modal" : p[0];
+            std::string text = p.size() > 1 ? p[1] : "Open";
+            auto btn = std::make_shared<ElementNode>("button");
+            btn->children.push_back(std::make_shared<TextNode>(text));
+            btn->styles.push_back({"cursor", "pointer"});
+
+            std::string bid = nextId();
+            btn->id = bid;
+            current()->children.push_back(btn);
+            stack.push_back(btn.get());
+
+            rawJS.push_back(
+                "document.getElementById('" + bid + "').onclick=function(){"
+                "document.getElementById('" + mid + "').style.opacity='1';"
+                "document.getElementById('" + mid + "').style.pointerEvents='auto';"
+                "document.getElementById('" + mid + "-box').style.transform='translateY(0)';};"
+            );
+            return;
+        }
+
+        // TOAST: show a notification
+        if (name == "TOAST") {
+            // Injects a toast system. param[0] = message, param[1] = duration ms (default 3000)
+            std::string msg = p.empty() ? "Notification" : p[0];
+            std::string dur = p.size() > 1 ? p[1] : "3000";
+            std::string tid = "toast" + std::to_string(idCounter++);
+
+            // Inject toast container if not already
+            rawCSS.push_back(
+                "#bd-toasts{position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:8px;}"
+                ".bd-toast{padding:12px 20px;border-radius:8px;font-size:14px;opacity:0;transform:translateX(20px);"
+                "transition:opacity 0.3s ease,transform 0.3s ease;}"
+                ".bd-toast.show{opacity:1;transform:translateX(0);}"
+            );
+
+            // Ensure container exists
+            rawJS.push_back(
+                "if(!document.getElementById('bd-toasts')){"
+                "var tc=document.createElement('div');tc.id='bd-toasts';document.body.appendChild(tc);}"
+            );
+
+            // Show toast on click of current element
+            ensureId(current());
+            rawJS.push_back(
+                "document.getElementById('" + current()->id + "').addEventListener('click',function(){"
+                "var t=document.createElement('div');t.className='bd-toast';t.textContent='" + msg + "';"
+                "t.style.background='#fff';t.style.color='#000';"
+                "document.getElementById('bd-toasts').appendChild(t);"
+                "requestAnimationFrame(function(){t.classList.add('show');});"
+                "setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove();},300);}," + dur + ");});"
+            );
+            return;
+        }
+
+        // THEME_TOGGLE: dark/light mode switch
+        if (name == "THEME_TOGGLE") {
+            std::string bid = nextId();
+            auto btn = std::make_shared<ElementNode>("button");
+            btn->id = bid;
+            btn->styles.push_back({"cursor", "pointer"});
+            btn->styles.push_back({"background", "none"});
+            btn->styles.push_back({"border", "1px solid currentColor"});
+            btn->styles.push_back({"padding", "6px 14px"});
+            btn->styles.push_back({"border-radius", "6px"});
+            btn->styles.push_back({"font-size", "13px"});
+            btn->children.push_back(std::make_shared<TextNode>(p.empty() ? "theme" : p[0]));
+            current()->children.push_back(btn);
+
+            rawJS.push_back(
+                "document.getElementById('" + bid + "').onclick=function(){"
+                "var b=document.body;var d=b.getAttribute('data-theme');"
+                "if(d==='light'){b.removeAttribute('data-theme');this.textContent='" + (p.empty() ? "theme" : p[0]) + "';}"
+                "else{b.setAttribute('data-theme','light');"
+                "this.textContent='" + (p.empty() ? "theme" : p[0]) + "';}};"
+            );
+
+            rawCSS.push_back(
+                "body[data-theme='light']{background:#fff!important;color:#111!important;}"
+                "body[data-theme='light'] *{border-color:#e0e0e0!important;}"
+            );
+            return;
+        }
+
         if (name == "VIDEO" || name == "AUDIO") {
             std::string tag = (name == "VIDEO") ? "video" : "audio";
             auto node = std::make_shared<ElementNode>(tag);
@@ -702,6 +1010,38 @@ private:
         }
         else if (name == "INNER_HTML") {
             rawJS.push_back("document.querySelector('" + param(p, 0) + "').innerHTML=`" + param(p, 1) + "`;");
+        }
+        else if (name == "ON_SUBMIT") {
+            std::string js = param(p, 0);
+            ensureId(current());
+            rawJS.push_back(
+                "document.getElementById('" + current()->id + "').addEventListener('submit',function(e){"
+                "e.preventDefault();" + js + "});"
+            );
+        }
+        else if (name == "FETCH_POST") {
+            // param[0] = url, param[1] = body expression, param[2] = callback
+            std::string url = param(p, 0);
+            std::string body = param(p, 1);
+            std::string cb = p.size() > 2 ? p[2] : "console.log";
+            rawJS.push_back(
+                "fetch('" + url + "',{method:'POST',headers:{'Content-Type':'application/json'},"
+                "body:JSON.stringify(" + body + ")}).then(function(r){return r.json()}).then(" + cb + ");"
+            );
+        }
+        else if (name == "SCROLL_REVEAL") {
+            // Apply fade-in-on-scroll to current element
+            ensureId(current());
+            current()->styles.push_back({"opacity", "0"});
+            current()->styles.push_back({"transform", "translateY(20px)"});
+            current()->styles.push_back({"transition", "opacity 0.6s ease, transform 0.6s ease"});
+
+            rawJS.push_back(
+                "(function(){var el=document.getElementById('" + current()->id + "');"
+                "var ob=new IntersectionObserver(function(e){e.forEach(function(x){"
+                "if(x.isIntersecting){el.style.opacity='1';el.style.transform='translateY(0)';ob.unobserve(el);}});}"
+                ",{threshold:0.1});ob.observe(el);})();"
+            );
         }
     }
 

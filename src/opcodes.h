@@ -82,6 +82,18 @@ inline const std::unordered_map<std::string, std::string>& allOpcodes() {
         {"00110001", "COMPONENT_END"},
         {"00110010", "COMPONENT_USE"},
         {"00110011", "COUNTDOWN"},
+        {"00110100", "IMPORT"},
+        {"00110101", "REPEAT"},
+        {"00110110", "REPEAT_END"},
+        {"00110111", "IF_VISIBLE"},
+        {"00111000", "CAROUSEL"},
+        {"00111001", "CAROUSEL_ITEM"},
+        {"00111010", "CAROUSEL_END"},
+        {"00111011", "MODAL_DEF"},
+        {"00111100", "MODAL_END"},
+        {"00111101", "MODAL_OPEN"},
+        {"00111110", "TOAST"},
+        {"00111111", "THEME_TOGGLE"},
 
         // ===== STYLE (01) =====
         {"01000001", "BG"},
@@ -161,6 +173,9 @@ inline const std::unordered_map<std::string, std::string>& allOpcodes() {
         {"10011111", "DOM_APPEND"},
         {"10100100", "REDIRECT"},
         {"10101010", "INNER_HTML"},
+        {"10101011", "ON_SUBMIT"},
+        {"10101100", "FETCH_POST"},
+        {"10101101", "SCROLL_REVEAL"},
 
         // ===== META (11) =====
         {"11000001", "TITLE"},
