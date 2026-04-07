@@ -268,8 +268,9 @@
 01010100 "0"
 01010010 "fadeUp 0.6s ease 0.45s forwards"
 
-00000111 "docs.html" "> get_started"
+00001101 "> get_started"
 11001010 "btn-w"
+11001001 "open-modal"
 01000001 "var(--white)"
 01000010 "var(--black)"
 01000111 "none"
@@ -772,8 +773,9 @@
 01000101 "0 0 32px 0"
 00000100
 
-00000111 "docs.html" "> start_building"
+00001101 "> start_building"
 11001010 "btn-w"
+11001001 "open-modal"
 01000001 "var(--white)"
 01000010 "var(--black)"
 01000111 "none"
@@ -783,9 +785,156 @@
 01010111 "pointer"
 01010011 "all 0.15s"
 01011101 "none"
-01001010 "inline-block"
 00000100
 
+00000100
+
+# ============================================================
+# FOOTER
+# ============================================================
+# ============================================================
+# MODAL - get started popup
+# ============================================================
+00000011
+11001001 "modal"
+01001101 "fixed"
+01100110 "top" "0"
+01100110 "left" "0"
+01001000 "100%"
+01001001 "100%"
+01000001 "rgba(0,0,0,0.85)"
+01100111 "blur(4px)"
+01100010 "9999"
+01001010 "flex"
+01011111 "center"
+01110000 "center"
+01000110 "24px"
+01010100 "0"
+01100110 "pointer-events" "none"
+01010011 "opacity 0.2s ease"
+
+# Modal box
+00000011
+11001001 "modal-box"
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray3)"
+01011001 "580px"
+01001000 "100%"
+01000110 "40px"
+01001101 "relative"
+01010110 "translateY(20px)"
+01010011 "transform 0.2s ease"
+
+# Close button
+00001101 "x"
+11001001 "modal-close"
+01001101 "absolute"
+01100110 "top" "16px"
+01100110 "right" "20px"
+01000001 "none"
+01000111 "none"
+01000010 "var(--gray5)"
+01000011 "18px"
+01010111 "pointer"
+01010011 "color 0.15s"
+00000100
+
+# Content
+00000101 "> get_started"
+01000010 "var(--white)"
+01000011 "20px"
+01100101 "700"
+01000101 "0 0 24px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 24px 0"
+00000100
+
+00000101 "01 // clone the repo"
+01000010 "var(--white)"
+01000011 "14px"
+01100101 "600"
+01000101 "0 0 8px 0"
+00000100
+
+00101001
+01000001 "var(--black)"
+01000111 "1px solid var(--gray2)"
+01000110 "14px 16px"
+01000011 "13px"
+01011011 "1.6"
+01000010 "var(--gray5)"
+
+11011010 "git clone https://github.com/markhasbrain/BD.git"
+11011010 "cd BD"
+
+00101010
+
+00000101 "02 // tell your ai this"
+01000010 "var(--white)"
+01000011 "14px"
+01100101 "600"
+01000101 "20px 0 8px 0"
+00000100
+
+00101001
+11001001 "prompt-block"
+01000001 "var(--black)"
+01000111 "1px solid var(--gray2)"
+01000110 "14px 16px"
+01000011 "13px"
+01011011 "1.6"
+01000010 "var(--gray6)"
+
+11011010 "Read the BD language spec at"
+11011010 "https://github.com/markhasbrain/BD"
+11011010 ""
+11011010 "Write me a website in a .bd file."
+11011010 "Run bd info for the opcode reference."
+
+00101010
+
+00001101 "> copy prompt"
+11001001 "copy-btn"
+01000001 "transparent"
+01000010 "var(--gray5)"
+01000111 "1px solid var(--gray3)"
+01000110 "8px 16px"
+01000011 "12px"
+01010111 "pointer"
+01010011 "all 0.15s"
+01000101 "12px 0 0 0"
+01011101 "none"
+00000100
+
+00000101 "03 // compile"
+01000010 "var(--white)"
+01000011 "14px"
+01100101 "600"
+01000101 "20px 0 8px 0"
+00000100
+
+00101001
+01000001 "var(--black)"
+01000111 "1px solid var(--gray2)"
+01000110 "14px 16px"
+01000011 "13px"
+01000010 "var(--gray5)"
+
+11011010 "bd serve mysite.bd"
+
+00101010
+
+00000101 "that's it."
+01000010 "var(--gray4)"
+01000011 "13px"
+01000101 "16px 0 0 0"
+00000100
+
+00000100
 00000100
 
 # ============================================================
@@ -826,6 +975,15 @@
 01000001 "var(--gray2)"
 11010110
 
+11010101 "#modal-close"
+01000010 "var(--white)"
+11010110
+
+11010101 "#copy-btn"
+01000010 "var(--white)"
+01000111 "1px solid var(--gray5)"
+11010110
+
 # ============================================================
 # RESPONSIVE
 # ============================================================
@@ -849,3 +1007,9 @@
 
 # Smooth scroll
 11011100 "document.querySelectorAll('a[href^=\"#\"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});"
+
+# Modal open/close
+11011100 "var modal=document.getElementById('modal');var box=document.getElementById('modal-box');document.querySelectorAll('.open-modal').forEach(function(b){b.addEventListener('click',function(){modal.style.opacity='1';modal.style.pointerEvents='auto';box.style.transform='translateY(0)';});});document.getElementById('modal-close').addEventListener('click',function(){modal.style.opacity='0';modal.style.pointerEvents='none';box.style.transform='translateY(20px)';});modal.addEventListener('click',function(e){if(e.target===modal){modal.style.opacity='0';modal.style.pointerEvents='none';box.style.transform='translateY(20px)';}});"
+
+# Copy prompt
+11011100 "document.getElementById('copy-btn').addEventListener('click',function(){var t=document.getElementById('prompt-block').textContent;navigator.clipboard.writeText(t);this.textContent='> copied';var b=this;setTimeout(function(){b.textContent='> copy prompt'},1500);});"
