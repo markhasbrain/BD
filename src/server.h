@@ -207,15 +207,26 @@ private:
 
         std::string response;
 
-        if (path == "/" || path == "/index.html") {
+        if (path == "/" || path == "/index.html" || path == "/index.bd") {
             std::lock_guard<std::mutex> lock(htmlMutex);
             response = httpResponse(200, "text/html", cachedHTML);
         }
         else if (path == "/__bd_check") {
             response = httpResponse(200, "text/plain", std::to_string(reloadTimestamp));
         }
+        else if (path.size() > 3 && path.substr(path.size() - 3) == ".bd") {
+            // Compile any .bd file on the fly -- no HTML files needed
+            std::string bdPath = (std::filesystem::path(bdFile).parent_path() / path.substr(1)).string();
+            if (std::filesystem::exists(bdPath)) {
+                Compiler c;
+                std::string html = c.compileFile(bdPath);
+                response = httpResponse(200, "text/html", injectLiveReload(html));
+            } else {
+                response = httpResponse(404, "text/plain", "404 Not Found");
+            }
+        }
         else {
-            // Try serve static file
+            // Try serve static file (images, fonts, etc)
             std::string filePath = (std::filesystem::path(bdFile).parent_path() / path.substr(1)).string();
             std::ifstream file(filePath, std::ios::binary);
             if (file.is_open()) {
