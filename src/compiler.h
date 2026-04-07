@@ -443,7 +443,9 @@ private:
         if (name == "COUNTDOWN") {
             // One opcode, full drum roller countdown timer
             // param[0] = ISO date string like "2026-04-07T13:00:00Z"
+            // param[1] = "static" for no roll animation (optional)
             std::string targetDate = p.empty() ? "2026-01-01T00:00:00Z" : p[0];
+            bool isStatic = (p.size() > 1 && p[1] == "static");
             std::string uid = "cd" + std::to_string(idCounter++);
 
             // Build the HTML structure
@@ -459,50 +461,64 @@ private:
                 auto unit = std::make_shared<ElementNode>("div");
                 unit->styles.push_back({"text-align", "center"});
 
-                auto digitPair = std::make_shared<ElementNode>("div");
-                digitPair->styles.push_back({"display", "flex"});
-                digitPair->styles.push_back({"gap", "2px"});
-                digitPair->styles.push_back({"margin", "0 0 6px 0"});
+                if (isStatic) {
+                    // Static mode: simple span, no roller
+                    auto numSpan = std::make_shared<ElementNode>("span");
+                    numSpan->id = uid + unitIds[u];
+                    numSpan->styles.push_back({"font-size", "clamp(40px, 10vw, 90px)"});
+                    numSpan->styles.push_back({"font-weight", "800"});
+                    numSpan->styles.push_back({"line-height", "1"});
+                    numSpan->styles.push_back({"letter-spacing", "-2px"});
+                    numSpan->styles.push_back({"font-variant-numeric", "tabular-nums"});
+                    numSpan->children.push_back(std::make_shared<TextNode>("00"));
+                    unit->children.push_back(numSpan);
+                } else {
+                    // Roll mode: drum roller with stacked digits
+                    auto digitPair = std::make_shared<ElementNode>("div");
+                    digitPair->styles.push_back({"display", "flex"});
+                    digitPair->styles.push_back({"gap", "2px"});
+                    digitPair->styles.push_back({"margin", "0 0 6px 0"});
 
-                for (int di = 0; di < 2; di++) {
-                    std::string did = uid + unitIds[u] + std::to_string(di);
+                    for (int di = 0; di < 2; di++) {
+                        std::string did = uid + unitIds[u] + std::to_string(di);
 
-                    auto clip = std::make_shared<ElementNode>("div");
-                    clip->id = did;
-                    clip->styles.push_back({"overflow", "hidden"});
-                    clip->styles.push_back({"position", "relative"});
-                    clip->styles.push_back({"height", "clamp(40px, 10vw, 90px)"});
-                    clip->styles.push_back({"width", "clamp(28px, 7vw, 62px)"});
-                    clip->styles.push_back({"-webkit-mask-image", "linear-gradient(to bottom, transparent, white 8%, white 92%, transparent)"});
-                    clip->styles.push_back({"mask-image", "linear-gradient(to bottom, transparent, white 8%, white 92%, transparent)"});
+                        auto clip = std::make_shared<ElementNode>("div");
+                        clip->id = did;
+                        clip->styles.push_back({"overflow", "hidden"});
+                        clip->styles.push_back({"position", "relative"});
+                        clip->styles.push_back({"height", "clamp(40px, 10vw, 90px)"});
+                        clip->styles.push_back({"width", "clamp(28px, 7vw, 62px)"});
+                        clip->styles.push_back({"-webkit-mask-image", "linear-gradient(to bottom, transparent, white 8%, white 92%, transparent)"});
+                        clip->styles.push_back({"mask-image", "linear-gradient(to bottom, transparent, white 8%, white 92%, transparent)"});
 
-                    auto strip = std::make_shared<ElementNode>("div");
-                    strip->id = did + "s";
-                    strip->styles.push_back({"position", "absolute"});
-                    strip->styles.push_back({"left", "0"});
-                    strip->styles.push_back({"top", "0"});
-                    strip->styles.push_back({"width", "100%"});
-                    strip->styles.push_back({"transition", "transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)"});
+                        auto strip = std::make_shared<ElementNode>("div");
+                        strip->id = did + "s";
+                        strip->styles.push_back({"position", "absolute"});
+                        strip->styles.push_back({"left", "0"});
+                        strip->styles.push_back({"top", "0"});
+                        strip->styles.push_back({"width", "100%"});
+                        strip->styles.push_back({"transition", "transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)"});
 
-                    for (int d = 0; d <= 10; d++) {
-                        auto slot = std::make_shared<ElementNode>("div");
-                        slot->styles.push_back({"height", "clamp(40px, 10vw, 90px)"});
-                        slot->styles.push_back({"display", "flex"});
-                        slot->styles.push_back({"justify-content", "center"});
-                        slot->styles.push_back({"align-items", "center"});
-                        slot->styles.push_back({"font-size", "clamp(40px, 10vw, 90px)"});
-                        slot->styles.push_back({"font-weight", "800"});
-                        slot->styles.push_back({"letter-spacing", "-2px"});
-                        slot->styles.push_back({"font-variant-numeric", "tabular-nums"});
-                        slot->children.push_back(std::make_shared<TextNode>(std::to_string(d % 10)));
-                        strip->children.push_back(slot);
+                        for (int d = 0; d <= 10; d++) {
+                            auto slot = std::make_shared<ElementNode>("div");
+                            slot->styles.push_back({"height", "clamp(40px, 10vw, 90px)"});
+                            slot->styles.push_back({"display", "flex"});
+                            slot->styles.push_back({"justify-content", "center"});
+                            slot->styles.push_back({"align-items", "center"});
+                            slot->styles.push_back({"font-size", "clamp(40px, 10vw, 90px)"});
+                            slot->styles.push_back({"font-weight", "800"});
+                            slot->styles.push_back({"letter-spacing", "-2px"});
+                            slot->styles.push_back({"font-variant-numeric", "tabular-nums"});
+                            slot->children.push_back(std::make_shared<TextNode>(std::to_string(d % 10)));
+                            strip->children.push_back(slot);
+                        }
+
+                        clip->children.push_back(strip);
+                        digitPair->children.push_back(clip);
                     }
 
-                    clip->children.push_back(strip);
-                    digitPair->children.push_back(clip);
+                    unit->children.push_back(digitPair);
                 }
-
-                unit->children.push_back(digitPair);
 
                 auto label = std::make_shared<ElementNode>("p");
                 label->styles.push_back({"font-size", "11px"});
@@ -513,7 +529,6 @@ private:
 
                 wrapper->children.push_back(unit);
 
-                // Add colon separator between units (not after last)
                 if (u < 3) {
                     auto sep = std::make_shared<ElementNode>("span");
                     sep->styles.push_back({"font-size", "clamp(28px, 6vw, 56px)"});
@@ -527,24 +542,37 @@ private:
             current()->children.push_back(wrapper);
 
             // Generate JS
-            std::string js = "var " + uid + "t=new Date('" + targetDate + "').getTime();"
-                "var " + uid + "p={};"
-                "var " + uid + "ids=['" + uid + "d0','" + uid + "d1','" + uid + "h0','" + uid + "h1','" + uid + "m0','" + uid + "m1','" + uid + "s0','" + uid + "s1'];"
-                "function " + uid + "set(id,v){var s=document.getElementById(id+'s');if(!s)return;var o=" + uid + "p[id];" + uid + "p[id]=v;"
-                "var h=s.parentElement.offsetHeight;"
-                "if(o===undefined){s.style.transition='none';s.style.transform='translateY(-'+v*h+'px)';return;}"
-                "if(o===v)return;"
-                "if(v===0&&o===9){s.style.transition='transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)';s.style.transform='translateY(-'+10*h+'px)';"
-                "setTimeout(function(){s.style.transition='none';s.style.transform='translateY(0)';},650);}"
-                "else{s.style.transition='transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)';s.style.transform='translateY(-'+v*h+'px)';}}"
-                "function " + uid + "cd(){var n=Date.now(),d=Math.max(0," + uid + "t-n);"
-                "var dd=String(Math.floor(d/864e5)).padStart(2,'0');"
-                "var hh=String(Math.floor(d%864e5/36e5)).padStart(2,'0');"
-                "var mm=String(Math.floor(d%36e5/6e4)).padStart(2,'0');"
-                "var ss=String(Math.floor(d%6e4/1e3)).padStart(2,'0');"
-                "var v=[+dd[0],+dd[1],+hh[0],+hh[1],+mm[0],+mm[1],+ss[0],+ss[1]];"
-                "for(var i=0;i<8;i++)" + uid + "set(" + uid + "ids[i],v[i]);}"
-                "setInterval(" + uid + "cd,1e3);" + uid + "cd();";
+            std::string js;
+            if (isStatic) {
+                // Static: simple textContent update
+                js = "var " + uid + "t=new Date('" + targetDate + "').getTime();"
+                    "function " + uid + "cd(){var n=Date.now(),d=Math.max(0," + uid + "t-n);"
+                    "document.getElementById('" + uid + "d').textContent=String(Math.floor(d/864e5)).padStart(2,'0');"
+                    "document.getElementById('" + uid + "h').textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');"
+                    "document.getElementById('" + uid + "m').textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');"
+                    "document.getElementById('" + uid + "s').textContent=String(Math.floor(d%6e4/1e3)).padStart(2,'0');}"
+                    "setInterval(" + uid + "cd,1e3);" + uid + "cd();";
+            } else {
+                // Roll: drum roller with translateY
+                js = "var " + uid + "t=new Date('" + targetDate + "').getTime();"
+                    "var " + uid + "p={};"
+                    "var " + uid + "ids=['" + uid + "d0','" + uid + "d1','" + uid + "h0','" + uid + "h1','" + uid + "m0','" + uid + "m1','" + uid + "s0','" + uid + "s1'];"
+                    "function " + uid + "set(id,v){var s=document.getElementById(id+'s');if(!s)return;var o=" + uid + "p[id];" + uid + "p[id]=v;"
+                    "var h=s.parentElement.offsetHeight;"
+                    "if(o===undefined){s.style.transition='none';s.style.transform='translateY(-'+v*h+'px)';return;}"
+                    "if(o===v)return;"
+                    "if(v===0&&o===9){s.style.transition='transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)';s.style.transform='translateY(-'+10*h+'px)';"
+                    "setTimeout(function(){s.style.transition='none';s.style.transform='translateY(0)';},650);}"
+                    "else{s.style.transition='transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)';s.style.transform='translateY(-'+v*h+'px)';}}"
+                    "function " + uid + "cd(){var n=Date.now(),d=Math.max(0," + uid + "t-n);"
+                    "var dd=String(Math.floor(d/864e5)).padStart(2,'0');"
+                    "var hh=String(Math.floor(d%864e5/36e5)).padStart(2,'0');"
+                    "var mm=String(Math.floor(d%36e5/6e4)).padStart(2,'0');"
+                    "var ss=String(Math.floor(d%6e4/1e3)).padStart(2,'0');"
+                    "var v=[+dd[0],+dd[1],+hh[0],+hh[1],+mm[0],+mm[1],+ss[0],+ss[1]];"
+                    "for(var i=0;i<8;i++)" + uid + "set(" + uid + "ids[i],v[i]);}"
+                    "setInterval(" + uid + "cd,1e3);" + uid + "cd();";
+            }
             rawJS.push_back(js);
             return;
         }
