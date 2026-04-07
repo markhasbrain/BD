@@ -367,7 +367,8 @@ private:
             node->attrs["src"] = param(p, 0);
             node->attrs["alt"] = param(p, 1);
             current()->children.push_back(node);
-            return; // self-closing
+            stack.push_back(node.get()); // NOW styleable -- close with SECTION_END
+            return;
         }
 
         if (name == "BUTTON") {
@@ -461,6 +462,20 @@ private:
             if (p.size() > 1) node->children.push_back(std::make_shared<TextNode>(p[1]));
             current()->children.push_back(node);
             stack.push_back(node.get());
+            return;
+        }
+
+        // ELEMENT: create ANY html tag by name, push to stack
+        if (name == "ELEMENT") {
+            std::string tag = p.empty() ? "div" : p[0];
+            auto node = std::make_shared<ElementNode>(tag);
+            if (p.size() > 1) node->children.push_back(std::make_shared<TextNode>(p[1]));
+            current()->children.push_back(node);
+            stack.push_back(node.get());
+            return;
+        }
+        if (name == "ELEMENT_END") {
+            if (stack.size() > 1) stack.pop_back();
             return;
         }
 
@@ -1047,6 +1062,31 @@ private:
                 "if(x.isIntersecting){el.style.opacity='1';el.style.transform='translateY(0)';ob.unobserve(el);}});}"
                 ",{threshold:0.1});ob.observe(el);})();"
             );
+        }
+        // EVENT: attach ANY dom event to current element
+        else if (name == "EVENT") {
+            std::string eventType = param(p, 0); // keydown, mouseenter, change, focus, etc.
+            std::string js = param(p, 1);
+            ensureId(current());
+            rawJS.push_back(
+                "document.getElementById('" + current()->id + "').addEventListener('" + eventType + "',function(e){" + js + "});"
+            );
+        }
+        // STYLE_RULE: create ANY css selector rule (covers all pseudo-selectors, at-rules, etc)
+        else if (name == "STYLE_RULE") {
+            _globalSel = param(p, 0); // any selector: .x:first-child, .x::before, etc.
+            _globalBuf.clear();
+        }
+        else if (name == "STYLE_RULE_END") {
+            if (!_globalSel.empty()) {
+                if (!_mediaSel.empty()) {
+                    _mediaRules.push_back({_globalSel, _globalBuf});
+                } else {
+                    globalStyles.push_back({_globalSel, _globalBuf});
+                }
+            }
+            _globalSel.clear();
+            _globalBuf.clear();
         }
         // ACCORDION
         else if (name == "ACCORDION") {

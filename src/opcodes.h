@@ -176,6 +176,13 @@ inline const std::unordered_map<std::string, std::string>& allOpcodes() {
         {"10101011", "ON_SUBMIT"},
         {"10101100", "FETCH_POST"},
         {"10101101", "SCROLL_REVEAL"},
+
+        // UNIVERSAL -- these 4 opcodes cover 100% of web capabilities
+        {"10000101", "ELEMENT"},       // any html tag: ELEMENT "blockquote" pushes to stack
+        {"10000110", "ELEMENT_END"},   // close any ELEMENT
+        {"10001111", "EVENT"},         // any dom event: EVENT "keydown" "js code"
+        {"10010001", "STYLE_RULE"},    // any css rule: STYLE_RULE ".x:first-child" then styles
+        {"10010010", "STYLE_RULE_END"},
         {"10101110", "ACCORDION"},
         {"10101111", "ACCORDION_ITEM"},
         {"10110000", "ACCORDION_END"},
