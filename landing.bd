@@ -1,0 +1,847 @@
+# ============================================================
+# BD (Binary Decoder) - Landing Page
+# Pure black & white. Monospace. ASCII. Binary.
+# ============================================================
+
+# --- META ---
+11000001 "BD - Binary Decoder"
+11000010 "UTF-8"
+11000011 "width=device-width, initial-scale=1.0"
+11000100 "One .bd file = One complete website. Pure binary. From scratch."
+11000110 "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap"
+
+# --- CSS VARIABLES ---
+11010010 "--black" "#000"
+11010010 "--white" "#fff"
+11010010 "--gray1" "#111"
+11010010 "--gray2" "#1a1a1a"
+11010010 "--gray3" "#333"
+11010010 "--gray4" "#666"
+11010010 "--gray5" "#999"
+11010010 "--gray6" "#ccc"
+11010010 "--mono" "'JetBrains Mono', monospace"
+
+# --- GLOBAL STYLES ---
+11010011 "*"
+01000101 "0"
+01000110 "0"
+01100011 "border-box"
+11010100
+
+11010011 "html"
+01100110 "scroll-behavior" "smooth"
+11010100
+
+11010011 "body"
+01000001 "var(--black)"
+01000010 "var(--white)"
+01000100 "var(--mono)"
+01011011 "1.6"
+01000011 "15px"
+01100110 "-webkit-font-smoothing" "antialiased"
+11010100
+
+11010011 "a"
+01000010 "var(--white)"
+01011101 "none"
+11010100
+
+11010011 "::selection"
+01000001 "var(--white)"
+01000010 "var(--black)"
+11010100
+
+11010011 "p"
+01100110 "text-wrap" "pretty"
+11010100
+
+11010011 "[id]"
+01100110 "scroll-margin-top" "64px"
+11010100
+
+11011011 "::-webkit-scrollbar { width: 4px; background: #000; }"
+11011011 "::-webkit-scrollbar-thumb { background: #333; }"
+
+# --- KEYFRAMES ---
+11001111 "blink"
+11010000 "0%, 100%"
+01010100 "1"
+11010000 "50%"
+01010100 "0"
+11010001
+
+11001111 "fadeUp"
+11010000 "from"
+01010100 "0"
+01010110 "translateY(20px)"
+11010000 "to"
+01010100 "1"
+01010110 "translateY(0)"
+11010001
+
+11001111 "scroll"
+11010000 "0%"
+01010110 "translateY(0)"
+11010000 "100%"
+01010110 "translateY(-50%)"
+11010001
+
+# ============================================================
+# DOCUMENT
+# ============================================================
+00000001
+
+# ============================================================
+# NAV
+# ============================================================
+00010000
+11001001 "nav"
+01001101 "fixed"
+01100110 "top" "0"
+01100110 "left" "0"
+01100110 "right" "0"
+01000110 "16px 32px"
+01001010 "flex"
+01011111 "space-between"
+01110000 "center"
+01000001 "rgba(0,0,0,0.9)"
+01100111 "blur(8px)"
+01100010 "1000"
+01011110 "1px solid var(--gray2)"
+
+00010100 "> BD_"
+01000011 "16px"
+01100101 "700"
+01011100 "2px"
+00010101
+
+00000011
+01001010 "flex"
+01011000 "28px"
+01110000 "center"
+01000011 "13px"
+01000010 "var(--gray5)"
+
+00000111 "#features" "features"
+01000010 "var(--gray5)"
+01011101 "none"
+01010011 "color 0.15s"
+00000100
+
+00000111 "#code" "code"
+01000010 "var(--gray5)"
+01011101 "none"
+01010011 "color 0.15s"
+00000100
+
+00000111 "#how" "how_it_works"
+01000010 "var(--gray5)"
+01011101 "none"
+01010011 "color 0.15s"
+00000100
+
+00000111 "#get-started" "[start]"
+01000010 "var(--white)"
+01000111 "1px solid var(--gray3)"
+01000110 "6px 16px"
+01011101 "none"
+01010011 "all 0.15s"
+00000100
+
+00000100
+00010001
+
+# ============================================================
+# HERO
+# ============================================================
+00000011
+11001001 "hero"
+01001001 "100vh"
+01001010 "flex"
+01100000 "column"
+01011111 "center"
+01110000 "center"
+01001101 "relative"
+01010101 "hidden"
+
+# Binary background - wrapper with fade mask
+00000011
+11001001 "bg-wrap"
+01001101 "absolute"
+01100110 "top" "0"
+01100110 "left" "0"
+01001000 "100%"
+01001001 "100%"
+01100010 "0"
+01100110 "user-select" "none"
+01100110 "pointer-events" "none"
+01100110 "-webkit-user-select" "none"
+01010101 "hidden"
+01100110 "-webkit-mask-image" "linear-gradient(to bottom, transparent 0%, white 15%, white 50%, transparent 100%)"
+01100110 "mask-image" "linear-gradient(to bottom, transparent 0%, white 15%, white 50%, transparent 100%)"
+
+# Scrolling binary text - fills full width, doubled for seamless loop
+00000011
+11001001 "bg-binary"
+01001000 "100%"
+01010100 "0.07"
+01000011 "12px"
+01011011 "1.35"
+01100110 "word-break" "break-all"
+01100110 "overflow-wrap" "break-word"
+00000100
+
+00000100
+
+# Content wrapper
+00000011
+11001001 "hero-content"
+01001101 "relative"
+01100010 "1"
+01001110 "center"
+01000110 "0 24px"
+01011001 "680px"
+01000101 "0 auto"
+
+# ASCII art logo - centered with inline-block on pre
+00101001
+11001001 "ascii-logo"
+01000011 "clamp(10px, 1.8vw, 16px)"
+01011011 "1.15"
+01011100 "0"
+01000010 "var(--white)"
+01101100 "pre"
+01000101 "0 auto 24px auto"
+01001010 "inline-block"
+01001110 "left"
+01010100 "0"
+01010010 "fadeUp 0.6s ease forwards"
+
+11011010 "██████╗ ██████╗ "
+11011010 "██╔══██╗██╔══██╗"
+11011010 "██████╔╝██║  ██║"
+11011010 "██╔══██╗██║  ██║"
+11011010 "██████╔╝██████╔╝"
+11011010 "╚═════╝ ╚═════╝ "
+11011010 "                "
+11011010 " BINARY DECODER "
+
+00101010
+
+# Tagline
+00000101 "ai writes terrible websites. we fixed that."
+11001001 "tagline"
+01000011 "clamp(20px, 3.5vw, 42px)"
+01100101 "800"
+01011011 "1.15"
+01011100 "-1px"
+01000010 "var(--white)"
+01000101 "0 0 20px 0"
+01010100 "0"
+01010010 "fadeUp 0.6s ease 0.15s forwards"
+00000100
+
+# Separator
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 20px 0"
+01010100 "0"
+01010010 "fadeUp 0.6s ease 0.25s forwards"
+00000100
+
+# Description
+00000101 "html was never designed for ai to write. so ai generates bloated, broken, sloppy markup. bd is a binary language built from the ground up for machines to code in -- and it produces clean sites every time."
+01000010 "var(--gray5)"
+01000011 "14px"
+01011001 "540px"
+01000101 "0 auto 32px auto"
+01010100 "0"
+01010010 "fadeUp 0.6s ease 0.35s forwards"
+00000100
+
+# Buttons
+00000011
+01001010 "flex"
+01011000 "12px"
+01011111 "center"
+01010100 "0"
+01010010 "fadeUp 0.6s ease 0.45s forwards"
+
+00001101 "> get_started"
+11001010 "btn-w"
+01000001 "var(--white)"
+01000010 "var(--black)"
+01000111 "none"
+01000110 "12px 28px"
+01000011 "14px"
+01100101 "600"
+01010111 "pointer"
+01010011 "all 0.15s"
+01011101 "none"
+00000100
+
+00001101 "> source_code"
+11001010 "btn-o"
+01000001 "transparent"
+01000010 "var(--gray5)"
+01000111 "1px solid var(--gray3)"
+01000110 "12px 28px"
+01000011 "14px"
+01100101 "400"
+01010111 "pointer"
+01010011 "all 0.15s"
+01011101 "none"
+00000100
+
+00000100
+
+# History tag
+00000101 "the first website ever built entirely in binary."
+01000010 "var(--white)"
+01000011 "13px"
+01100101 "500"
+01000101 "20px 0 0 0"
+01010100 "0"
+01010010 "fadeUp 0.6s ease 0.55s forwards"
+00000100
+
+# Version tag
+00000101 "v0.1.0-beta // open source // MIT license"
+01000010 "var(--gray4)"
+01000011 "12px"
+01000101 "24px 0 0 0"
+01010100 "0"
+01010010 "fadeUp 0.6s ease 0.55s forwards"
+00000100
+
+00000100
+00000100
+
+# ============================================================
+# FEATURES
+# ============================================================
+00000011
+11001001 "features"
+01000110 "120px 24px 140px 24px"
+01011001 "900px"
+01000101 "0 auto"
+01011010 "100vh"
+
+00000101 "01 // FEATURES"
+01000010 "var(--gray4)"
+01000011 "12px"
+01011100 "3px"
+01100100 "uppercase"
+01000101 "0 0 8px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+# Feature grid - 2 column
+00000011
+11001010 "feat-grid"
+01001010 "grid"
+01110111 "1fr 1fr"
+01011000 "1px"
+
+# Feature 1
+00000011
+11001010 "feat"
+01000110 "32px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "00"
+01000010 "var(--gray4)"
+01000011 "12px"
+01000101 "0 0 16px 0"
+00000100
+
+00000110 3 "one file, everything"
+01000010 "var(--white)"
+01000011 "18px"
+01100101 "600"
+01000101 "0 0 10px 0"
+00000100
+
+00000101 "structure + style + logic. no more index.html, style.css, app.js. one .bd file births an entire website."
+01000010 "var(--gray5)"
+01000011 "13px"
+01011011 "1.65"
+00000100
+00000100
+
+# Feature 2
+00000011
+11001010 "feat"
+01000110 "32px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "01"
+01000010 "var(--gray4)"
+01000011 "12px"
+01000101 "0 0 16px 0"
+00000100
+
+00000110 3 "binary precision"
+01000010 "var(--white)"
+01000011 "18px"
+01100101 "600"
+01000101 "0 0 10px 0"
+00000100
+
+00000101 "8-bit opcodes. no wasted syntax. no closing tags. no semicolons. every instruction does exactly one thing."
+01000010 "var(--gray5)"
+01000011 "13px"
+01011011 "1.65"
+00000100
+00000100
+
+# Feature 3
+00000011
+11001010 "feat"
+01000110 "32px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "10"
+01000010 "var(--gray4)"
+01000011 "12px"
+01000101 "0 0 16px 0"
+00000100
+
+00000110 3 "ai-native language"
+01000010 "var(--white)"
+01000011 "18px"
+01100101 "600"
+01000101 "0 0 10px 0"
+00000100
+
+00000101 "html has too many ways to do the same thing. ai guesses wrong constantly. bd has one way to do everything -- so ai gets it right every time."
+01000010 "var(--gray5)"
+01000011 "13px"
+01011011 "1.65"
+00000100
+00000100
+
+# Feature 4
+00000011
+11001010 "feat"
+01000110 "32px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "11"
+01000010 "var(--gray4)"
+01000011 "12px"
+01000101 "0 0 16px 0"
+00000100
+
+00000110 3 "full control"
+01000010 "var(--white)"
+01000011 "18px"
+01100101 "600"
+01000101 "0 0 10px 0"
+00000100
+
+00000101 "no framework opinions. no default styles. you own every pixel. the compiler is c++ from scratch with zero dependencies."
+01000010 "var(--gray5)"
+01000011 "13px"
+01011011 "1.65"
+00000100
+00000100
+
+00000100
+00000100
+
+# ============================================================
+# CODE EXAMPLE
+# ============================================================
+00000011
+11001001 "code"
+01000110 "100px 24px"
+01011001 "900px"
+01000101 "0 auto"
+
+00000101 "02 // CODE"
+01000010 "var(--gray4)"
+01000011 "12px"
+01011100 "3px"
+01100100 "uppercase"
+01000101 "0 0 8px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+# Code block
+00000011
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+
+# Tab bar
+00000011
+01000110 "10px 20px"
+01011110 "1px solid var(--gray2)"
+01001010 "flex"
+01011111 "space-between"
+01110000 "center"
+
+00010100 "hello.bd"
+01000010 "var(--gray5)"
+01000011 "12px"
+00010101
+
+00010100 "8 lines // 247 bytes"
+01000010 "var(--gray4)"
+01000011 "11px"
+00010101
+00000100
+
+# Code body
+00101001
+01000110 "20px"
+01000011 "14px"
+01011011 "1.85"
+01010101 "auto"
+
+11011010 "<code>"
+11011010 "<span style=\"color:#555\">  # page title</span>"
+11011010 "  <span style=\"color:#fff\">11000001</span> <span style=\"color:#888\">\"Hello World\"</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\">  # document</span>"
+11011010 "  <span style=\"color:#fff\">00000001</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\">  # heading</span>"
+11011010 "  <span style=\"color:#fff\">00000110</span> <span style=\"color:#888\">1</span> <span style=\"color:#888\">\"Hello from BD\"</span>"
+11011010 "  <span style=\"color:#fff\">01000010</span> <span style=\"color:#888\">\"#fff\"</span>"
+11011010 "  <span style=\"color:#fff\">01000011</span> <span style=\"color:#888\">\"48px\"</span>"
+11011010 "  <span style=\"color:#fff\">00000100</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\">  # paragraph</span>"
+11011010 "  <span style=\"color:#fff\">00000101</span> <span style=\"color:#888\">\"Built with binary.\"</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\">  # end</span>"
+11011010 "  <span style=\"color:#fff\">00000010</span>"
+11011010 "</code>"
+
+00101010
+00000100
+
+00000101 "eight bits. that's all you need. 00 = structure, 01 = style, 10 = logic, 11 = meta."
+01000010 "var(--gray5)"
+01000011 "13px"
+01000101 "24px 0 0 0"
+00000100
+
+00000100
+
+# ============================================================
+# HOW IT WORKS
+# ============================================================
+00000011
+11001001 "how"
+01000110 "100px 24px"
+01011001 "900px"
+01000101 "0 auto"
+
+00000101 "03 // HOW IT WORKS"
+01000010 "var(--gray4)"
+01000011 "12px"
+01011100 "3px"
+01100100 "uppercase"
+01000101 "0 0 8px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+# Step 1
+00000011
+01000101 "0 0 40px 0"
+01000110 "0 0 40px 0"
+01011110 "1px solid var(--gray2)"
+
+00000101 "01"
+01000010 "var(--gray4)"
+01000011 "48px"
+01100101 "800"
+01011011 "1"
+00000100
+
+00000110 3 "write .bd"
+01000010 "var(--white)"
+01000011 "20px"
+01100101 "600"
+01000101 "8px 0 10px 0"
+00000100
+
+00000101 "open a file. write binary opcodes. structure your page, style it, add logic. all in one file. or let ai write it -- bd was designed for that."
+01000010 "var(--gray5)"
+01000011 "14px"
+00000100
+00000100
+
+# Step 2
+00000011
+01000101 "0 0 40px 0"
+01000110 "0 0 40px 0"
+01011110 "1px solid var(--gray2)"
+
+00000101 "02"
+01000010 "var(--gray4)"
+01000011 "48px"
+01100101 "800"
+01011011 "1"
+00000100
+
+00000110 3 "compile"
+01000010 "var(--white)"
+01000011 "20px"
+01100101 "600"
+01000101 "8px 0 10px 0"
+00000100
+
+00000101 "run bd compile. the c++ engine reads your binary, builds a tree, outputs a production-ready site. compiles in 0ms."
+01000010 "var(--gray5)"
+01000011 "14px"
+00000100
+00000100
+
+# Step 3
+00000011
+01000101 "0 0 0 0"
+
+00000101 "03"
+01000010 "var(--gray4)"
+01000011 "48px"
+01100101 "800"
+01011011 "1"
+00000100
+
+00000110 3 "ship it"
+01000010 "var(--white)"
+01000011 "20px"
+01100101 "600"
+01000101 "8px 0 10px 0"
+00000100
+
+00000101 "output is one html file. host it anywhere. bd compiles to html the same way c compiles to assembly -- you never touch it. the browser is just the runtime."
+01000010 "var(--gray5)"
+01000011 "14px"
+00000100
+00000100
+
+00000100
+
+# ============================================================
+# OPCODE TABLE
+# ============================================================
+00000011
+01000110 "100px 24px"
+01011001 "900px"
+01000101 "0 auto"
+
+00000101 "04 // OPCODE MAP"
+01000010 "var(--gray4)"
+01000011 "12px"
+01011100 "3px"
+01100100 "uppercase"
+01000101 "0 0 8px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+00000011
+01001010 "grid"
+01110111 "1fr 1fr 1fr 1fr"
+01011000 "1px"
+
+00000011
+01000110 "20px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "00xxxxxx"
+01000010 "var(--white)"
+01000011 "16px"
+01100101 "700"
+01000101 "0 0 6px 0"
+00000100
+
+00000101 "structure"
+01000010 "var(--gray5)"
+01000011 "12px"
+00000100
+00000100
+
+00000011
+01000110 "20px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "01xxxxxx"
+01000010 "var(--white)"
+01000011 "16px"
+01100101 "700"
+01000101 "0 0 6px 0"
+00000100
+
+00000101 "style"
+01000010 "var(--gray5)"
+01000011 "12px"
+00000100
+00000100
+
+00000011
+01000110 "20px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "10xxxxxx"
+01000010 "var(--white)"
+01000011 "16px"
+01100101 "700"
+01000101 "0 0 6px 0"
+00000100
+
+00000101 "logic"
+01000010 "var(--gray5)"
+01000011 "12px"
+00000100
+00000100
+
+00000011
+01000110 "20px"
+01000111 "1px solid var(--gray2)"
+
+00000101 "11xxxxxx"
+01000010 "var(--white)"
+01000011 "16px"
+01100101 "700"
+01000101 "0 0 6px 0"
+00000100
+
+00000101 "meta"
+01000010 "var(--gray5)"
+01000011 "12px"
+00000100
+00000100
+
+00000100
+00000100
+
+# ============================================================
+# CTA
+# ============================================================
+00000011
+11001001 "get-started"
+01000110 "120px 24px"
+01001110 "center"
+01011001 "600px"
+01000101 "0 auto"
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+00000110 2 "ready to decode?"
+01000010 "var(--white)"
+01000011 "clamp(24px, 4vw, 36px)"
+01100101 "700"
+01000101 "0 0 16px 0"
+00000100
+
+00000101 "start building websites the way they should be built."
+01000010 "var(--gray5)"
+01000011 "15px"
+01000101 "0 0 32px 0"
+00000100
+
+00001101 "> start_building"
+11001010 "btn-w"
+01000001 "var(--white)"
+01000010 "var(--black)"
+01000111 "none"
+01000110 "14px 36px"
+01000011 "15px"
+01100101 "600"
+01010111 "pointer"
+01010011 "all 0.15s"
+01011101 "none"
+00000100
+
+00000100
+
+# ============================================================
+# FOOTER
+# ============================================================
+00010010
+01000110 "48px 24px"
+01100110 "border-top" "1px solid var(--gray2)"
+01001110 "center"
+
+00000101 "BD v0.1.0-beta // c++ from scratch // open source // MIT"
+01000010 "var(--gray4)"
+01000011 "12px"
+01011100 "2px"
+00000100
+
+00010011
+
+00000010
+
+# ============================================================
+# HOVER STYLES
+# ============================================================
+11010101 "a"
+01000010 "var(--white)"
+11010110
+
+11010101 ".btn-w"
+01000001 "var(--gray6)"
+11010110
+
+11010101 ".btn-o"
+01000010 "var(--white)"
+01000111 "1px solid var(--gray5)"
+11010110
+
+11010101 ".feat"
+01000001 "var(--gray2)"
+11010110
+
+# ============================================================
+# RESPONSIVE
+# ============================================================
+11001101 "(max-width: 768px)"
+
+11010011 ".feat-grid"
+01110111 "1fr"
+11010100
+
+11010011 "#nav"
+01000110 "14px 16px"
+11010100
+
+11001110
+
+# ============================================================
+# JS - Infinite binary rain
+# ============================================================
+# Generate binary, clone it for seamless loop, animate with JS
+11011100 "var bg=document.getElementById('bg-binary');if(bg){var s='';for(var i=0;i<30000;i++){s+=Math.random()>0.5?'1':'0';}bg.textContent=s+s;var h=bg.scrollHeight/2;var y=0;function tick(){y-=0.4;if(y<=-h)y=0;bg.style.transform='translateY('+y+'px)';requestAnimationFrame(tick);}tick();}"
+
+# Smooth scroll
+11011100 "document.querySelectorAll('a[href^=\"#\"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});"
