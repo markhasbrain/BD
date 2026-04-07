@@ -1,0 +1,499 @@
+# ============================================================
+# BD - Get Started / Documentation
+# ============================================================
+
+11000001 "BD - Get Started"
+11000010 "UTF-8"
+11000011 "width=device-width, initial-scale=1.0"
+11000110 "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap"
+
+11010010 "--black" "#000"
+11010010 "--white" "#fff"
+11010010 "--gray1" "#111"
+11010010 "--gray2" "#1a1a1a"
+11010010 "--gray3" "#333"
+11010010 "--gray4" "#666"
+11010010 "--gray5" "#999"
+11010010 "--gray6" "#ccc"
+11010010 "--mono" "'JetBrains Mono', monospace"
+
+11010011 "*"
+01000101 "0"
+01000110 "0"
+01100011 "border-box"
+11010100
+
+11010011 "html"
+01100110 "scroll-behavior" "smooth"
+11010100
+
+11010011 "body"
+01000001 "var(--black)"
+01000010 "var(--white)"
+01000100 "var(--mono)"
+01011011 "1.7"
+01000011 "15px"
+01100110 "-webkit-font-smoothing" "antialiased"
+11010100
+
+11010011 "a"
+01000010 "var(--white)"
+01011101 "underline"
+11010100
+
+11010011 "::selection"
+01000001 "var(--white)"
+01000010 "var(--black)"
+11010100
+
+11010011 "p"
+01100110 "text-wrap" "pretty"
+11010100
+
+11010011 "code"
+01000001 "var(--gray1)"
+01000110 "2px 8px"
+01010000 "4px"
+01000011 "14px"
+11010100
+
+11011011 "::-webkit-scrollbar { width: 4px; background: #000; }"
+11011011 "::-webkit-scrollbar-thumb { background: #333; }"
+
+00000001
+
+# ============================================================
+# NAV
+# ============================================================
+00010000
+01001101 "fixed"
+01100110 "top" "0"
+01100110 "left" "0"
+01100110 "right" "0"
+01000110 "16px 32px"
+01001010 "flex"
+01011111 "space-between"
+01110000 "center"
+01000001 "rgba(0,0,0,0.9)"
+01100111 "blur(8px)"
+01100010 "1000"
+01011110 "1px solid var(--gray2)"
+
+00000111 "/" "> BD_"
+01000011 "16px"
+01100101 "700"
+01011100 "2px"
+01011101 "none"
+00000100
+
+00000111 "https://github.com/markhasbrain/BD" "github"
+01000010 "var(--gray5)"
+01000011 "13px"
+01011101 "none"
+00000100
+
+00010001
+
+# ============================================================
+# CONTENT
+# ============================================================
+00000011
+01011001 "740px"
+01000101 "0 auto"
+01000110 "100px 24px 80px 24px"
+
+# Title
+00000110 1 "get started"
+01000010 "var(--white)"
+01000011 "clamp(28px, 4vw, 40px)"
+01100101 "800"
+01000101 "0 0 8px 0"
+00000100
+
+00000101 "everything you need to build your first .bd website."
+01000010 "var(--gray5)"
+01000011 "16px"
+01000101 "0 0 48px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+# ============================================================
+# INSTALL
+# ============================================================
+00000110 2 "01 // install"
+01000010 "var(--white)"
+01000011 "22px"
+01100101 "700"
+01000101 "0 0 20px 0"
+00000100
+
+00000101 "BD is a single binary. no package managers, no npm, no pip. clone and compile."
+01000010 "var(--gray5)"
+01000011 "14px"
+01000101 "0 0 20px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "14px"
+01011011 "1.8"
+
+11011010 "git clone https://github.com/markhasbrain/BD.git"
+11011010 "cd BD"
+11011010 ""
+11011010 "# windows (msys2/mingw)"
+11011010 "g++ -std=c++20 -O2 src/main.cpp -lws2_32 -o bd.exe"
+11011010 ""
+11011010 "# linux / macos"
+11011010 "g++ -std=c++20 -O2 src/main.cpp -o bd"
+
+00101010
+
+00000101 "that's it. one command. zero dependencies."
+01000010 "var(--gray4)"
+01000011 "13px"
+01000101 "20px 0 48px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+# ============================================================
+# YOUR FIRST .BD FILE
+# ============================================================
+00000110 2 "02 // your first .bd file"
+01000010 "var(--white)"
+01000011 "22px"
+01100101 "700"
+01000101 "0 0 20px 0"
+00000100
+
+00000101 "create a file called hello.bd and write this:"
+01000010 "var(--gray5)"
+01000011 "14px"
+01000101 "0 0 20px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "14px"
+01011011 "1.8"
+
+11011010 "<span style=\"color:#555\"># set page title</span>"
+11011010 "<span style=\"color:#fff\">11000001</span> <span style=\"color:#888\">\"My First BD Site\"</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\"># start document</span>"
+11011010 "<span style=\"color:#fff\">00000001</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\"># heading with style</span>"
+11011010 "<span style=\"color:#fff\">00000110</span> <span style=\"color:#888\">1 \"hello, world\"</span>"
+11011010 "<span style=\"color:#fff\">01000010</span> <span style=\"color:#888\">\"#fff\"</span>"
+11011010 "<span style=\"color:#fff\">01000011</span> <span style=\"color:#888\">\"48px\"</span>"
+11011010 "<span style=\"color:#fff\">01100101</span> <span style=\"color:#888\">\"700\"</span>"
+11011010 "<span style=\"color:#fff\">01001110</span> <span style=\"color:#888\">\"center\"</span>"
+11011010 "<span style=\"color:#fff\">00000100</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\"># paragraph</span>"
+11011010 "<span style=\"color:#fff\">00000101</span> <span style=\"color:#888\">\"built entirely in binary.\"</span>"
+11011010 "<span style=\"color:#fff\">01000010</span> <span style=\"color:#888\">\"#999\"</span>"
+11011010 "<span style=\"color:#fff\">01001110</span> <span style=\"color:#888\">\"center\"</span>"
+11011010 "<span style=\"color:#fff\">00000100</span>"
+11011010 ""
+11011010 "<span style=\"color:#555\"># end document</span>"
+11011010 "<span style=\"color:#fff\">00000010</span>"
+
+00101010
+
+00000101 "now compile and serve it:"
+01000010 "var(--gray5)"
+01000011 "14px"
+01000101 "20px 0 20px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "14px"
+01011011 "1.8"
+
+11011010 "bd compile hello.bd        # outputs hello.html"
+11011010 "bd serve hello.bd          # dev server on localhost:5000"
+
+00101010
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "48px 0 48px 0"
+00000100
+
+# ============================================================
+# OPCODE REFERENCE
+# ============================================================
+00000110 2 "03 // how opcodes work"
+01000010 "var(--white)"
+01000011 "22px"
+01100101 "700"
+01000101 "0 0 20px 0"
+00000100
+
+00000101 "every instruction starts with an 8-bit opcode. the first two bits tell you the category:"
+01000010 "var(--gray5)"
+01000011 "14px"
+01000101 "0 0 24px 0"
+00000100
+
+# Opcode categories
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "14px"
+01011011 "1.8"
+
+11011010 "<span style=\"color:#fff\">00xxxxxx</span>  structure    (div, p, h1, a, img, button...)"
+11011010 "<span style=\"color:#fff\">01xxxxxx</span>  style        (color, font, margin, flex, grid...)"
+11011010 "<span style=\"color:#fff\">10xxxxxx</span>  logic        (onclick, timer, fetch, dom...)"
+11011010 "<span style=\"color:#fff\">11xxxxxx</span>  meta         (title, class, id, keyframes...)"
+
+00101010
+
+00000101 "parameters follow the opcode on the same line. strings go in quotes. numbers are bare."
+01000010 "var(--gray5)"
+01000011 "14px"
+01000101 "20px 0 48px 0"
+00000100
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "0 0 48px 0"
+00000100
+
+# ============================================================
+# COMMON OPCODES
+# ============================================================
+00000110 2 "04 // common opcodes"
+01000010 "var(--white)"
+01000011 "22px"
+01100101 "700"
+01000101 "0 0 20px 0"
+00000100
+
+00000110 3 "structure"
+01000010 "var(--gray5)"
+01000011 "14px"
+01100101 "600"
+01000101 "0 0 12px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "13px"
+01011011 "1.8"
+
+11011010 "00000001          DOC_START          start document"
+11011010 "00000010          DOC_END            end document"
+11011010 "00000011          SECTION_START      open a div"
+11011010 "00000100          SECTION_END        close a div"
+11011010 "00000101 \"text\"   TEXT               paragraph"
+11011010 "00000110 N \"text\" HEADING            h1-h6 (N = level)"
+11011010 "00000111 url text LINK               anchor tag"
+11011010 "00001000 src alt  IMAGE              img tag"
+11011010 "00001100 type ph  INPUT              input field"
+11011010 "00001101 \"text\"   BUTTON             button"
+11011010 "00010000/01       NAV_START/END      nav element"
+11011010 "00010010/11       FOOTER_START/END   footer element"
+11011010 "00010100/01       SPAN/SPAN_END      inline span"
+
+00101010
+
+00000110 3 "style"
+01000010 "var(--gray5)"
+01000011 "14px"
+01100101 "600"
+01000101 "24px 0 12px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "13px"
+01011011 "1.8"
+
+11011010 "01000001 val      BG                 background"
+11011010 "01000010 val      COLOR              text color"
+11011010 "01000011 val      FONT_SIZE          font size"
+11011010 "01000101 val      MARGIN             margin"
+11011010 "01000110 val      PADDING            padding"
+11011010 "01001000 val      WIDTH              width"
+11011010 "01001010 val      DISPLAY            display mode"
+11011010 "01001110 val      ALIGN              text-align + margin auto"
+11011010 "01010000 val      RADIUS             border-radius"
+11011010 "01010011 val      TRANSITION         transition"
+11011010 "01011111 val      JUSTIFY            justify-content"
+11011010 "01110000 val      ALIGN_ITEMS        align-items"
+11011010 "01110111 val      GRID_TEMPLATE      grid-template-columns"
+11011010 "01100110 k v      CUSTOM_CSS         any css property"
+
+00101010
+
+00000110 3 "meta"
+01000010 "var(--gray5)"
+01000011 "14px"
+01100101 "600"
+01000101 "24px 0 12px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "13px"
+01011011 "1.8"
+
+11011010 "11000001 val      TITLE              page title"
+11011010 "11001001 val      ID                 element id"
+11011010 "11001010 val      CLASS              element class"
+11011010 "11001011 k v      ATTR               any attribute"
+11011010 "11010011 sel      GLOBAL_STYLE       start global css rule"
+11011010 "11010100          GLOBAL_STYLE_END   end global css rule"
+11011010 "11010101 sel      HOVER_STYLE        start :hover rule"
+11011010 "11010110          HOVER_STYLE_END    end :hover rule"
+11011010 "11001111 name     KEYFRAMES          start @keyframes"
+11011010 "11010001          KEYFRAMES_END      end @keyframes"
+11011010 "11011011 css      RAW_CSS            inject raw css"
+11011010 "11011100 js       RAW_JS             inject raw js"
+
+00101010
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "48px 0 48px 0"
+00000100
+
+# ============================================================
+# USING WITH AI
+# ============================================================
+00000110 2 "05 // using with ai"
+01000010 "var(--white)"
+01000011 "22px"
+01100101 "700"
+01000101 "0 0 20px 0"
+00000100
+
+00000101 "bd was designed for ai to write. give your ai this prompt:"
+01000010 "var(--gray5)"
+01000011 "14px"
+01000101 "0 0 20px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "14px"
+01011011 "1.8"
+01000010 "var(--gray6)"
+
+11011010 "You write BD (.bd files), a binary language that replaces"
+11011010 "HTML, CSS, and JS. Every instruction is an 8-bit opcode."
+11011010 ""
+11011010 "Categories:"
+11011010 "  00 = structure (div, p, h1, a, img, button)"
+11011010 "  01 = style (color, font-size, margin, flex, grid)"
+11011010 "  10 = logic (onclick, timer, fetch)"
+11011010 "  11 = meta (title, class, id, global css, keyframes)"
+11011010 ""
+11011010 "Rules:"
+11011010 "  - One .bd file = one complete website"
+11011010 "  - Every element opened must be closed (SECTION_START/END)"
+11011010 "  - Style opcodes apply to the current element on the stack"
+11011010 "  - Use GLOBAL_STYLE for reusable css rules"
+11011010 "  - Use CUSTOM_CSS for any css property not in the opcodes"
+11011010 ""
+11011010 "Run 'bd info' for the full opcode reference."
+
+00101010
+
+00000101 "________________________________________"
+01000010 "var(--gray3)"
+01000011 "14px"
+01000101 "48px 0 48px 0"
+00000100
+
+# ============================================================
+# PURE BINARY MODE
+# ============================================================
+00000110 2 "06 // pure binary mode"
+01000010 "var(--white)"
+01000011 "22px"
+01100101 "700"
+01000101 "0 0 20px 0"
+00000100
+
+00000101 "bd can encode readable .bd files into pure binary -- a wall of 0s and 1s with no human text. common characters get shorter codes."
+01000010 "var(--gray5)"
+01000011 "14px"
+01000101 "0 0 20px 0"
+00000100
+
+00101001
+01000001 "var(--gray1)"
+01000111 "1px solid var(--gray2)"
+01000110 "20px"
+01000011 "14px"
+01011011 "1.8"
+
+11011010 "bd encode landing.bd                # -> landing.bin.bd"
+11011010 "bd decode landing.bin.bd             # -> landing.bd"
+11011010 "bd compile landing.bin.bd            # works directly"
+
+00101010
+
+00000101 "the compiler reads both formats. encode for distribution. decode for editing."
+01000010 "var(--gray4)"
+01000011 "13px"
+01000101 "20px 0 0 0"
+00000100
+
+00000100
+
+# ============================================================
+# FOOTER
+# ============================================================
+00010010
+01000110 "48px 24px"
+01100110 "border-top" "1px solid var(--gray2)"
+01001110 "center"
+
+00000101 "BD v0.1.0-beta // c++ from scratch // open source // MIT"
+01000010 "var(--gray4)"
+01000011 "12px"
+01011100 "2px"
+00000100
+
+00010011
+
+00000010
+
+11010101 "a"
+01000010 "var(--white)"
+11010110

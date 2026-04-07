@@ -73,6 +73,11 @@ inline const std::unordered_map<std::string, std::string>& allOpcodes() {
         {"00101000", "CODE_BLOCK"},
         {"00101001", "PRE_START"},
         {"00101010", "PRE_END"},
+        {"00101011", "TEXTAREA"},
+        {"00101100", "SELECT_START"},
+        {"00101101", "SELECT_END"},
+        {"00101110", "OPTION"},
+        {"00101111", "LABEL"},
 
         // ===== STYLE (01) =====
         {"01000001", "BG"},

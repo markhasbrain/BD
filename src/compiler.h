@@ -18,6 +18,7 @@
 #include <memory>
 #include "opcodes.h"
 #include "lexer.h"
+#include "encoder.h"
 
 namespace bd {
 
@@ -187,8 +188,15 @@ public:
 
     std::string compile(const std::string& source) {
         reset();
+
+        // Auto-detect encoded binary format (starts with 11111111 or has no quotes)
+        std::string src = source;
+        if (source.size() > 8 && source.substr(0, 8) == "11111111") {
+            src = Encoder::decode(source);
+        }
+
         Lexer lexer;
-        lexer.tokenize(source);
+        lexer.tokenize(src);
 
         for (auto& err : lexer.errors) errors.push_back(err);
 
@@ -355,6 +363,44 @@ private:
             auto node = std::make_shared<ElementNode>("i");
             if (!p.empty()) node->classes.push_back(p[0]);
             current()->children.push_back(node);
+            return;
+        }
+
+        if (name == "TEXTAREA") {
+            auto node = std::make_shared<ElementNode>("textarea");
+            if (!p.empty()) node->attrs["placeholder"] = p[0];
+            if (p.size() > 1) node->children.push_back(std::make_shared<TextNode>(p[1]));
+            current()->children.push_back(node);
+            stack.push_back(node.get());
+            return;
+        }
+
+        if (name == "SELECT_START") {
+            auto node = std::make_shared<ElementNode>("select");
+            current()->children.push_back(node);
+            stack.push_back(node.get());
+            return;
+        }
+
+        if (name == "SELECT_END") {
+            if (stack.size() > 1) stack.pop_back();
+            return;
+        }
+
+        if (name == "OPTION") {
+            auto node = std::make_shared<ElementNode>("option");
+            if (!p.empty()) { node->attrs["value"] = p[0]; node->children.push_back(std::make_shared<TextNode>(p[0])); }
+            if (p.size() > 1) { node->children.clear(); node->children.push_back(std::make_shared<TextNode>(p[1])); }
+            current()->children.push_back(node);
+            return;
+        }
+
+        if (name == "LABEL") {
+            auto node = std::make_shared<ElementNode>("label");
+            if (!p.empty()) node->attrs["for"] = p[0];
+            if (p.size() > 1) node->children.push_back(std::make_shared<TextNode>(p[1]));
+            current()->children.push_back(node);
+            stack.push_back(node.get());
             return;
         }
 
