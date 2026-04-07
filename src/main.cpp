@@ -37,16 +37,13 @@ void printHelp() {
   COMMANDS:
     compile <file.bd> [out.html]    Compile a .bd file to HTML
     serve <file.bd> [port]          Start dev server (default: 5000)
-    encode <file.bd> [out.bd]       Encode readable .bd to pure binary
-    decode <file.bd> [out.bd]       Decode pure binary .bd to readable
+    encode <src> [out.bd]            Bootstrap: convert quoted format to binary
     info                            Show all opcodes
     version                         Show version
 
   EXAMPLES:
-    bd compile landing.bd
-    bd serve landing.bd 5000
-    bd encode landing.bd landing.bin.bd
-    bd decode landing.bin.bd landing.bd
+    bd compile site.bd
+    bd serve site.bd 5000
 )" << std::endl;
 }
 
@@ -117,32 +114,6 @@ void handleEncode(const std::string& input, const std::string& output) {
     std::cout << "[BD] Output: " << output << "\n";
     std::cout << "[BD] Encoded in " << ms << "ms\n";
     std::cout << "[BD] Source: " << srcSize << " bytes -> Encoded: " << encSize << " bytes\n";
-}
-
-void handleDecode(const std::string& input, const std::string& output) {
-    if (!std::filesystem::exists(input)) {
-        std::cerr << "Error: File not found: " << input << "\n";
-        return;
-    }
-
-    std::ifstream file(input);
-    std::string source((std::istreambuf_iterator<char>(file)),
-                        std::istreambuf_iterator<char>());
-
-    std::cout << "[BD] Decoding " << input << " to readable format...\n";
-    auto start = std::chrono::high_resolution_clock::now();
-
-    std::string decoded = bd::Encoder::decode(source);
-
-    auto end = std::chrono::high_resolution_clock::now();
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-    std::ofstream out(output);
-    out << decoded;
-    out.close();
-
-    std::cout << "[BD] Output: " << output << "\n";
-    std::cout << "[BD] Decoded in " << ms << "ms\n";
 }
 
 void handleInfo() {
@@ -251,29 +222,6 @@ int main(int argc, char* argv[]) {
             }
         }
         handleEncode(input, output);
-        return 0;
-    }
-
-    if (command == "decode") {
-        if (argc < 3) {
-            std::cerr << "Error: No input file specified\n";
-            return 1;
-        }
-        std::string input = argv[2];
-        std::string output;
-        if (argc >= 4) {
-            output = argv[3];
-        } else {
-            output = input;
-            // landing.bin.bd -> landing.bd
-            size_t pos = output.find(".bin.bd");
-            if (pos != std::string::npos) {
-                output = output.substr(0, pos) + ".bd";
-            } else {
-                output += ".decoded.bd";
-            }
-        }
-        handleDecode(input, output);
         return 0;
     }
 

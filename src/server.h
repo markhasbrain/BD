@@ -216,7 +216,7 @@ private:
         }
         else {
             // Try serve static file
-            std::string filePath = std::filesystem::path(bdFile).parent_path().string() + path;
+            std::string filePath = (std::filesystem::path(bdFile).parent_path() / path.substr(1)).string();
             std::ifstream file(filePath, std::ios::binary);
             if (file.is_open()) {
                 std::string content((std::istreambuf_iterator<char>(file)),
@@ -246,6 +246,7 @@ private:
     }
 
     std::string guessMime(const std::string& path) {
+        if (path.ends_with(".html")) return "text/html";
         if (path.ends_with(".css")) return "text/css";
         if (path.ends_with(".js")) return "application/javascript";
         if (path.ends_with(".json")) return "application/json";

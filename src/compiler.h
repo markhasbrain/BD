@@ -18,7 +18,6 @@
 #include <memory>
 #include "opcodes.h"
 #include "lexer.h"
-#include "encoder.h"
 
 namespace bd {
 
@@ -189,14 +188,8 @@ public:
     std::string compile(const std::string& source) {
         reset();
 
-        // Auto-detect encoded binary format (starts with 11111111 or has no quotes)
-        std::string src = source;
-        if (source.size() > 8 && source.substr(0, 8) == "11111111") {
-            src = Encoder::decode(source);
-        }
-
         Lexer lexer;
-        lexer.tokenize(src);
+        lexer.tokenize(source);
 
         for (auto& err : lexer.errors) errors.push_back(err);
 
